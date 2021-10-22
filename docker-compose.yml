@@ -1,0 +1,35 @@
+web:
+  build: .
+  command: python3 __init__.py
+  ports:
+    - "8080:5000"
+  volumes:
+    - .:/todo
+  links:
+    - mongo
+    - redisdb
+  environment:
+  - REDIS_HOST=redisdb
+  - REDIS_PORT=6379
+
+mongo:
+  image: mongo:3.7.3 # From DockerHub
+  ports:
+    - "27017:27017"
+
+redisdb:
+  image: "redis"
+  ports:
+    - "6379:6379"
+
+
+worker:
+  build: .
+  command: python3 worker.py
+  links:
+    - redisdb
+    - mongo
+  environment:
+  - REDIS_HOST=redisdb
+  - REDIS_PORT=6379
+
