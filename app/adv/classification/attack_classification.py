@@ -18,7 +18,7 @@ class AttackClassification(AttackBase):
         if eps == 0:
             return x
         self.prepare_attack(x, eps)
-        x, y = x.numpy().astype(np.float32), y.numpy()
+        x, y = x.numpy().astype(np.float64), y.numpy()
         orig_shape = x.shape
         data = CArray(x.reshape(x.shape[0], -1))
         labels = CArray(y)

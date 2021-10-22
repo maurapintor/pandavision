@@ -75,6 +75,8 @@ class EvaluationManager:
         if self._evaluation_mode == 'fast':
             if self._task == 'classification':
                 self._num_samples = 10
+        else:
+            self._num_samples = None
 
         # load dataset and model
         if dataset_id is not None:
@@ -98,7 +100,6 @@ class EvaluationManager:
         if self._task == 'classification' and self._metric != 'classification-accuracy':
             raise ValueError("Please, use 'classification-accuracy' as detection metric")
 
-        self._num_samples = None
 
         if perturbation_values is not None:
             self._perturbation_values = perturbation_values
@@ -110,7 +111,7 @@ class EvaluationManager:
         # Dataset can be loaded from a local file path
         data_loader = CustomDatasetLoader(path=self._dataset_id,
                                           use_case=self._task,
-                                          batch_size=1,
+                                          batch_size=10,
                                           shuffle=True,
                                           num_samples=self._num_samples,
                                           indexes=self._indexes)
@@ -118,13 +119,13 @@ class EvaluationManager:
 
         self.data_max, self.data_min = data_loader.validation_dataset._samples.max(), \
                                        data_loader.validation_dataset._samples.min()
+
         self.input_scale = self.data_max - self.data_min
         self.input_shape = self._validation_loader.dataset._samples[0].shape
         self.n_output_classes = len(self._validation_loader.dataset.classes)
 
     def _load_model_by_id(self):
-        use_secml = True if self._task == 'classification' else False
-        self._model = ModelLoader(model_path=self._model_id, input_shape=self.input_shape).load_model(secml=use_secml)
+        self._model = ModelLoader(model_path=self._model_id, input_shape=self.input_shape).load_model()
 
     def prepare_attack(self):
         if self._task == 'classification':

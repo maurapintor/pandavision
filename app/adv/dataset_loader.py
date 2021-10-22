@@ -43,11 +43,13 @@ class H5Dataset(TorchDataset):
                 self._samples = self._file['samples'][:]
         else:
             self._samples = self._file['samples'][sorted(sample_indexes), ...]
-        y_data = self._file['labels']
+        y_data = self._file['labels'][:]
 
         if self._use_case == 'classification':
             if sample_indexes is not None:
                 self._labels = y_data[sorted(sample_indexes)]
+            else:
+                self._labels = y_data
         else:
             raise ValueError("Use case not found.")
 

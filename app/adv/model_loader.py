@@ -21,10 +21,9 @@ class ModelLoader:
     def input_shape(self):
         return self._input_shape
 
-    def load_model(self, secml=False):
+    def load_model(self):
         self.onnx_to_pytorch()
-        if secml:
-            self.pytorch_to_secml()
+        self.pytorch_to_secml()
         return self._model
 
     def onnx_to_pytorch(self):
@@ -37,5 +36,8 @@ class ModelLoader:
 
     def pytorch_to_secml(self):
         # todo handle gracefully pretrained_classes
-        self._model = CClassifierPyTorch(model=self._model, pretrained=True, input_shape=self.input_shape)
+        self._model = CClassifierPyTorch(model=self._model,
+                                         pretrained=True,
+                                         input_shape=self.input_shape,
+                                         batch_size=10)
 
