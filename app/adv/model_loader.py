@@ -32,6 +32,7 @@ class ModelLoader:
         :return: the instantiated model obj
         """
         self._model = TorchONNXLoader(self._model_path).model
+        self._model.eval()
 
 
     def pytorch_to_secml(self):
@@ -39,5 +40,5 @@ class ModelLoader:
         self._model = CClassifierPyTorch(model=self._model,
                                          pretrained=True,
                                          input_shape=self.input_shape,
-                                         batch_size=10)
+                                         batch_size=1)
 

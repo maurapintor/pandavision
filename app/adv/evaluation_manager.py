@@ -111,7 +111,7 @@ class EvaluationManager:
         # Dataset can be loaded from a local file path
         data_loader = CustomDatasetLoader(path=self._dataset_id,
                                           use_case=self._task,
-                                          batch_size=10,
+                                          batch_size=1,
                                           shuffle=True,
                                           num_samples=self._num_samples,
                                           indexes=self._indexes)

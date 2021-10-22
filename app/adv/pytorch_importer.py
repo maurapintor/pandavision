@@ -22,7 +22,7 @@ class TorchONNXLoader:
         self.device = device
         if self.device is None:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.model = ConvertModel(onnx_model, experimental=True)
+        self.model = ConvertModel(onnx_model)
 
     def torch_tensor(self, x):
         """
