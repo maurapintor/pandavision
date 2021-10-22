@@ -38,7 +38,7 @@ status_handling_dict = {
 
 
 def attack(**kwargs):
-    from security_evaluations.evaluation_manager import EvaluationManager
+    from adv.evaluation_manager import EvaluationManager
 
     try:
         em = EvaluationManager(
@@ -61,18 +61,6 @@ def attack(**kwargs):
         eval = None
         logging.log(logging.WARNING, "Unable to perform security evaluation.")
         traceback.print_exc()
-
-    try:
-        # callback to the DSE Engine
-        callback_id = kwargs.get("callback_id", "")
-
-        import requests
-        url = 'http://%s/api/dse_engine/callback?callback_id=%s' % ('dse_engine:5000', callback_id)
-        data = {"some_data": 0}
-
-        _ = requests.post(url, data=data)
-    except:
-        logging.log(logging.WARNING, "Unable to send data to DSE server. SKIPPING post.")
 
     return eval
 

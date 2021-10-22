@@ -7,12 +7,9 @@ from typing import List, Union
 
 import numpy as np
 
-
-from security_evaluations.security_evaluation_lib.classification.attack_classification import AttackClassification
-from security_evaluations.security_evaluation_lib.dataset_loader import CustomDatasetLoader
-from security_evaluations.security_evaluation_lib.detection.attack_yolo import AttackDetection
-from security_evaluations.security_evaluation_lib.model_loader import ModelLoader
-from security_evaluations.security_evaluation_lib.segmentation.attack_unet import AttackSegmentation
+from adv.classification.attack_classification import AttackClassification
+from adv.dataset_loader import CustomDatasetLoader
+from adv.model_loader import ModelLoader
 
 
 class EvaluationManager:
@@ -77,11 +74,7 @@ class EvaluationManager:
         self._evaluation_mode = evaluation_mode
         if self._evaluation_mode == 'fast':
             if self._task == 'classification':
-                self._num_samples = 100
-            elif self._task == 'detection':
-                self._num_samples = 20
-            elif self._task == 'segmentation':
-                self._num_samples = 50
+                self._num_samples = 10
 
         # load dataset and model
         if dataset_id is not None:
@@ -104,10 +97,6 @@ class EvaluationManager:
 
         if self._task == 'classification' and self._metric != 'classification-accuracy':
             raise ValueError("Please, use 'classification-accuracy' as detection metric")
-        if self._task == 'detection' and self._metric != 'map':
-            raise ValueError("Please, use 'map' as detection metric")
-        if self._task == 'segmentation' and self._metric != 'iou':
-            raise ValueError("Please, use 'iou' as segmentation metric")
 
         self._num_samples = None
 
@@ -117,12 +106,6 @@ class EvaluationManager:
             # default value
             self._perturbation_values = [0, 0.01, 0.02, 0.03, 0.04, 0.05]
 
-        if config_file is not None:
-            with open(config_file, 'rb') as f:
-                self.config_dict = json.load(f)
-        else:
-            self.config_dict = None
-
     def _load_dataset_by_id(self):
         # Dataset can be loaded from a local file path
         data_loader = CustomDatasetLoader(path=self._dataset_id,
@@ -130,37 +113,22 @@ class EvaluationManager:
                                           batch_size=1,
                                           shuffle=True,
                                           num_samples=self._num_samples,
-                                          indexes=self._indexes,
-                                          pipeline_path=self.pipeline_path)
+                                          indexes=self._indexes)
         self._validation_loader = data_loader.get_data()
 
-        self.data_max, self.data_min = data_loader._validation_dataset._samples.max(), \
-                                       data_loader._validation_dataset._samples.min()
+        self.data_max, self.data_min = data_loader.validation_dataset._samples.max(), \
+                                       data_loader.validation_dataset._samples.min()
         self.input_scale = self.data_max - self.data_min
-        self.input_shape = self._validation_loader.dataset[0][0].shape
+        self.input_shape = self._validation_loader.dataset._samples[0].shape
         self.n_output_classes = len(self._validation_loader.dataset.classes)
 
     def _load_model_by_id(self):
         use_secml = True if self._task == 'classification' else False
-        self._model = ModelLoader(model_path=self._model_id,
-                                  input_shape=self.input_shape).load_model(secml=use_secml)
+        self._model = ModelLoader(model_path=self._model_id, input_shape=self.input_shape).load_model(secml=use_secml)
 
     def prepare_attack(self):
         if self._task == 'classification':
             self.attack = AttackClassification(model=self._model, lb=self.data_min, ub=self.data_max)
-        elif self._task == 'detection':
-            # FIXME here there are a lot of defaults!
-            yolo_anchors = self.config_dict.get('ConfigurationFile').get('anchors')
-            conf_threshold = self.config_dict.get('ConfigurationFile').get('conf_thres', 0.25)
-            nms_threshold = self.config_dict.get('ConfigurationFile').get('nms_thres', 0.3)
-            iou_threshold = self.config_dict.get('ConfigurationFile').get('iou_thres', 0.3)
-            self.attack = AttackDetection(model=self._model, lb=self.data_min, ub=self.data_max,
-                                          yolo_anchors=yolo_anchors,
-                                          conf_threshold=conf_threshold,
-                                          nms_threshold=nms_threshold,
-                                          iou_threshold=iou_threshold)
-        elif self._task == 'segmentation':
-            self.attack = AttackSegmentation(model=self._model, lb=self.data_min, ub=self.data_max)
         else:
             raise ValueError("Attack for task {} is not supported yet!".format(self._task))
 

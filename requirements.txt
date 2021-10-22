@@ -8,3 +8,4 @@ flask-restful
 rq
 jsonschema
 matplotlib
+h5py

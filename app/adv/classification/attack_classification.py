@@ -1,19 +1,17 @@
 import os
 
 import numpy as np
-from cleverhans.attacks import FastGradientMethod
-from secml.adv.attacks import CAttackEvasionCleverhans
+from secml.adv.attacks.evasion import CFoolboxPGDLinf
 from secml.array import CArray
 from secml.data import CDataset
 from secml.ml.peval.metrics import CMetricAccuracy
 
-from security_evaluations.attack_base import AttackBase
+from adv.attack_base import AttackBase
 
 
 class AttackClassification(AttackBase):
     def __init__(self, model, lb, ub):
-        self.classes = ['yes', 'no', 'up', 'down', 'left', 'right',
-                        'on', 'off', 'stop', 'go', 'unk1', 'unk2', 'unk3']
+        self.classes = range(1000)
         super(AttackClassification, self).__init__(model, lb, ub)
 
     def run(self, x, y, eps):
@@ -36,17 +34,12 @@ class AttackClassification(AttackBase):
         max_ = x.max()
         min_ = x.min()
         data_range = max_ - min_
-        attack_params = {'eps': eps * data_range,
-                         'ord': np.inf,
-                         'rand_init': False,
-                         'clip_min': min_,
-                         'clip_max': max_}
-        self.attack = CAttackEvasionCleverhans(
+        attack_params = {'epsilons': eps * data_range.item(),
+                         'lb': min_,
+                         'ub': max_}
+        self.attack = CFoolboxPGDLinf(
             classifier=self.model,
-            surrogate_classifier=self.model,
             y_target=None,
-            surrogate_data=None,
-            clvh_attack_class=FastGradientMethod,
             **attack_params)
 
     def evaluate_perf(self, x, labels):
