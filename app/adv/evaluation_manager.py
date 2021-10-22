@@ -21,7 +21,6 @@ class EvaluationManager:
                  evaluation_mode: str = 'complete',
                  task: str = 'classification',
                  indexes: List[int] = None,
-                 config_file: str = None,
                  preprocessing_pipeline: str = None):
         """Performs security evaluation for a given model and dataset.
 
@@ -112,9 +111,10 @@ class EvaluationManager:
         data_loader = CustomDatasetLoader(path=self._dataset_id,
                                           use_case=self._task,
                                           batch_size=1,
-                                          shuffle=True,
+                                          shuffle=False,
                                           num_samples=self._num_samples,
                                           indexes=self._indexes)
+
         self._validation_loader = data_loader.get_data()
 
         self.data_max, self.data_min = data_loader.validation_dataset._samples.max(), \

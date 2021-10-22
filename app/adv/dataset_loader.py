@@ -26,32 +26,9 @@ class H5Dataset(TorchDataset):
 
         self._file = h5py.File(self._file_path, 'r')
 
-        if indexes is not None:  # check first if indexes are passed
-            sample_indexes = indexes
-        elif num_samples is not None:
-            sample_indexes = range(min(num_samples, self._file['samples'].shape[0]))
-            # shuffle
-            sample_indexes = np.array(sample_indexes)
-            np.random.shuffle(sample_indexes)
-        else:
-            sample_indexes = None
-
-        if sample_indexes is None:
-            if len(self._file['samples'].shape) > 2:
-                self._samples = self._file['samples'][:]
-            else:
-                self._samples = self._file['samples'][:]
-        else:
-            self._samples = self._file['samples'][sorted(sample_indexes), ...]
+        self._samples = self._file['samples'][:]
         y_data = self._file['labels'][:]
-
-        if self._use_case == 'classification':
-            if sample_indexes is not None:
-                self._labels = y_data[sorted(sample_indexes)]
-            else:
-                self._labels = y_data
-        else:
-            raise ValueError("Use case not found.")
+        self._labels = y_data
 
         self.classes = np.unique(self._labels)
         self._file.close()

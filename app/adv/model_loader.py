@@ -32,7 +32,6 @@ class ModelLoader:
         :return: the instantiated model obj
         """
         self._model = TorchONNXLoader(self._model_path).model
-        self._model.eval()
 
 
     def pytorch_to_secml(self):

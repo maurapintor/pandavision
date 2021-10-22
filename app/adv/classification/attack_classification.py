@@ -22,7 +22,6 @@ class AttackClassification(AttackBase):
         orig_shape = x.shape
         data = CArray(x.reshape(x.shape[0], -1))
         labels = CArray(y)
-
         ts = CDataset(data, labels)
 
         y_pred, _, adv_ds, _ = self.attack.run(ts.X, ts.Y)
@@ -48,7 +47,8 @@ class AttackClassification(AttackBase):
         labels = CArray(labels)
         ts = CDataset(data, labels)
         preds = self.model.predict(ts.X)
-        acc = metric.performance_score(ts.Y, preds)
+        print(labels.item(), preds.item())
+        acc = metric.performance_score(ts.Y.astype(preds.dtype), preds)
         return acc
 
     def generate_figure(self, x, x_adv, y, figure_path, figure_name):

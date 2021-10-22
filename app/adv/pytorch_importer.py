@@ -23,34 +23,8 @@ class TorchONNXLoader:
         if self.device is None:
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model = ConvertModel(onnx_model)
+        self.model.eval()
 
-    def torch_tensor(self, x):
-        """
-        Converts an input numpy array to a pytorch tensor.
-
-        :param x: input numpy array
-        :return: torch tensor, loaded in the device specified during initialization
-        """
-        return torch.from_numpy(x).to(self.device)
-
-    def predict(self, x, return_decision_function=False):
-        """
-        Returns the prediction for the batch of samples x.
-
-        :param return_decision_function: if set to True, the method returns the output scores
-            along with the prediction results
-        :param x: input batch. Should be a numpy array of size (batch_size, *input_shape)
-
-        :return y: predictions
-        :return scores: logits (returned only if return_decision_function is set to True)
-        """
-        x = self.torch_tensor(x)
-        outputs = self.model(x)
-        pred_label = torch.argmax(outputs, dim=1)
-        if return_decision_function is True:
-            return outputs.cpu().detach().numpy(), pred_label.cpu().numpy()
-        # else return only the labels
-        return pred_label.cpu().numpy()
 
 
     def _validate_input(self):
