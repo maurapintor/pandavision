@@ -15,8 +15,6 @@ class H5Dataset(TorchDataset):
                  indexes=None):
         super(H5Dataset, self).__init__()
 
-        self.transf_composed = transforms.ToTensor()
-
         self._use_case = use_case
         if self._use_case not in ['classification', 'detection',
                                   'segmentation']:
@@ -34,7 +32,7 @@ class H5Dataset(TorchDataset):
         self._file.close()
 
     def __getitem__(self, index):
-        input = self.transf_composed(self._samples[index, ...])
+        input = torch.from_numpy(self._samples[index, ...])
         return input, self._labels[index]
 
     def __len__(self):

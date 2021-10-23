@@ -47,7 +47,6 @@ class AttackClassification(AttackBase):
         labels = CArray(labels)
         ts = CDataset(data, labels)
         preds = self.model.predict(ts.X)
-        print(labels.item(), preds.item())
         acc = metric.performance_score(ts.Y.astype(preds.dtype), preds)
         return acc
 
