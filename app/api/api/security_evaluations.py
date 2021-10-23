@@ -5,27 +5,20 @@ import logging
 
 from flask import g, abort
 
-# queue jobs handling
 from rq.registry import FinishedJobRegistry, StartedJobRegistry, DeferredJobRegistry
 from rq import Queue
 from rq import Connection
 
-# config = ConfigurationManager(configuration_id="5bc9ec73b520d91019a84fa5")
-
 # todo manage to stop a started process
 # todo change cleanup into some deletion
 
-# status_handling_dict is used for queue handling
-#   keys:       status name
-#   values:     tuples containing (1) method for collecting the list of jobs
-#               for the given status and (2) method for removing all
-#               jobs corresponding to the given status from the queue
 from api.api import Resource
 from worker import conn
 
 import traceback
 
 import os
+
 SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', 'data')
 
 status_handling_dict = {
@@ -42,15 +35,14 @@ def attack(**kwargs):
 
     try:
         em = EvaluationManager(
-            dataset_id= os.path.join(SHARED_DATA_FOLDER, kwargs.get("dataset", None)),
+            dataset_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("dataset", None)),
             perturbation_type=kwargs.get("perturbation-type", None),
-            model_id= os.path.join(SHARED_DATA_FOLDER, kwargs.get("trained-model", None)),
+            model_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("trained-model", None)),
             metric=kwargs.get("performance-metric", "classification-accuracy"),
             perturbation_values=kwargs.get("perturbation-values", None),
             evaluation_mode=kwargs.get("evaluation-mode", "complete"),
             task=kwargs.get("task", None),
             indexes=kwargs.get("indexes", None),
-            config_file=kwargs.get("config-path", None),
             preprocessing_pipeline=kwargs.get("pipeline-path", None),
         )
 
@@ -86,34 +78,13 @@ class SecurityEvaluations(Resource):
         return job_list, 200, None
 
     def post(self):
-        # if "dataset" in g.json and "trained-model" in g.json:
-        #     try:
-        #         model = AlgorithmConfiguration.objects.get(id=g.json["trained-model"])
-        #     except:
-        #         logging.log(logging.INFO, msg="Trained-model not found.")
-        #         abort(404, "Model not found")
-        #         return
-        #     try:
-        #         dataset = Dataset.objects.get(id=g.json["dataset"])
-        #     except:
-        #         logging.log(logging.INFO, msg="Dataset not found.")
-        #         abort(404, "Dataset not found")
-        #         return
-        # else:
-        #     logging.log(logging.INFO, msg="Missing parameters.")
-        #     abort(400, "Bad request. Missing parameters.")
-        #     return
 
-        callback_id = g.args.get("callback_id")
-
-        args = {**g.json, **{"callback_id": callback_id}}
+        args = {**g.json}
 
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
             try:
                 job = q.enqueue_call(func=attack, result_ttl=5000, timeout=5000, kwargs=args)
-                # job = q.enqueue_call(func=attack, result_ttl=config.result_ttl, timeout=config.job_timeout,
-                # kwargs=g.json)
             except:
                 logging.log(logging.WARNING, "Unable to queue the requested process.")
                 abort(422, "Unprocessable entry. The server understands the request "

@@ -8,6 +8,7 @@ from rq import Connection
 from rq import Queue
 from rq.registry import StartedJobRegistry, FinishedJobRegistry, DeferredJobRegistry
 
+from adv.evaluation_manager import EvaluationManager
 from api.api import Resource
 from worker import conn
 
@@ -21,7 +22,6 @@ status_handling_dict = {
 
 
 def create_adv_sample(**kwargs):
-    from security_evaluations.evaluation_manager import EvaluationManager
 
     em = EvaluationManager(
         dataset_id=kwargs.get("dataset", None),
@@ -29,7 +29,6 @@ def create_adv_sample(**kwargs):
         model_id=kwargs.get("trained-model", None),
         metric=kwargs.get("performance-metric", "scores"),
         perturbation_values=kwargs.get("perturbation-values", None),
-        config_file=kwargs.get("config-path", None),
         preprocessing_pipeline=kwargs.get("pipeline-path", None),
     )
     return em.adv_image()

@@ -10,7 +10,6 @@ from worker import conn
 from api.api import Resource
 
 
-
 class SecurityEvaluationsIdOutput(Resource):
 
     def get(self, id):

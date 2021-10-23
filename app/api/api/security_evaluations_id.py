@@ -22,8 +22,9 @@ class SecurityEvaluationsId(Resource):
             return
         if job.is_finished:
             # redirect to job output API
-            return job.status, 303, {'Location': "api/security_evaluations/{}/output".format(id)}
-        return {"job-status": job.status}, 200, None
+            print(id)
+            return job._status, 303, {'Location': "/api/security_evaluations/{}/output".format(id)}
+        return {"job-status": job._status}, 200, None
 
     def delete(self, id):
         try:
