@@ -6,8 +6,8 @@ import logging
 from flask import abort
 from rq.job import Job
 
+from app.api.api import Resource
 from worker import conn
-from api.api import Resource
 
 
 class SecurityEvaluationsIdOutput(Resource):

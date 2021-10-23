@@ -6,7 +6,7 @@ import logging
 from flask import abort
 from rq.job import Job
 
-from api.api import Resource
+from app.api.api import Resource
 from worker import conn
 
 

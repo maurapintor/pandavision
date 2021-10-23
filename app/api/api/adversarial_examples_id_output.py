@@ -8,7 +8,7 @@ from flask import make_response, abort
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from rq.job import Job
 
-from api.api import Resource
+from app.api.api import Resource
 from worker import conn
 
 

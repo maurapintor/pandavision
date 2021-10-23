@@ -13,7 +13,7 @@ from rq import Worker, Queue, Connection
 listen = ['sec-evals', 'adv-gen']
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
-REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+REDIS_PORT = os.environ.get('REDIS_PORT', '6378')
 conn = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
 
 if __name__ == '__main__':

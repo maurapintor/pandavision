@@ -12,14 +12,14 @@ from rq import Connection
 # todo manage to stop a started process
 # todo change cleanup into some deletion
 
-from api.api import Resource
-from worker import conn
-
-import traceback
 
 import os
 
-SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', 'data')
+from app.adv.evaluation_manager import EvaluationManager
+from app.api.api import Resource
+from worker import conn
+
+SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', '/data')
 
 status_handling_dict = {
     "started": (lambda: StartedJobRegistry().get_job_ids(), lambda: 1),
@@ -31,29 +31,25 @@ status_handling_dict = {
 
 
 def attack(**kwargs):
-    from adv.evaluation_manager import EvaluationManager
 
-    try:
-        em = EvaluationManager(
-            dataset_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("dataset", None)),
-            perturbation_type=kwargs.get("perturbation-type", None),
-            model_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("trained-model", None)),
-            metric=kwargs.get("performance-metric", "classification-accuracy"),
-            perturbation_values=kwargs.get("perturbation-values", None),
-            evaluation_mode=kwargs.get("evaluation-mode", "complete"),
-            task=kwargs.get("task", None),
-            indexes=kwargs.get("indexes", None),
-            preprocessing_pipeline=kwargs.get("pipeline-path", None),
-        )
+    # try:
+    em = EvaluationManager(
+        dataset_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("dataset", None)),
+        perturbation_type=kwargs.get("perturbation-type", None),
+        model_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("trained-model", None)),
+        metric=kwargs.get("performance-metric", "classification-accuracy"),
+        perturbation_values=kwargs.get("perturbation-values", None),
+        evaluation_mode=kwargs.get("evaluation-mode", "complete"),
+        task=kwargs.get("task", None),
+        indexes=kwargs.get("indexes", None),
+        preprocessing_pipeline=kwargs.get("pipeline-path", None),
+    )
 
-        eval = em.sec_eval_curve()
-        sec_curve = eval['sec-curve']
-        print(sec_curve)
-    except Exception as _:
-        eval = None
-        logging.log(logging.WARNING, "Unable to perform security evaluation.")
-        traceback.print_exc()
-
+    eval = em.sec_eval_curve()
+    # except Exception as _:
+    #     eval = None
+    #     logging.log(logging.WARNING, "Unable to perform security evaluation.")
+    #     traceback.print_exc()
     return eval
 
 

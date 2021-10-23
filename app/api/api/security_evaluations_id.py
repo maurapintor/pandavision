@@ -5,10 +5,11 @@ import logging
 
 from flask import abort
 
-from api.api import Resource
-from worker import conn
 
 from rq.job import Job
+
+from app.api.api import Resource
+from worker import conn
 
 
 class SecurityEvaluationsId(Resource):

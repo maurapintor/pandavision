@@ -8,8 +8,8 @@ from rq import Connection
 from rq import Queue
 from rq.registry import StartedJobRegistry, FinishedJobRegistry, DeferredJobRegistry
 
-from adv.evaluation_manager import EvaluationManager
-from api.api import Resource
+from app.adv.evaluation_manager import EvaluationManager
+from app.api.api import Resource
 from worker import conn
 
 status_handling_dict = {
@@ -55,23 +55,6 @@ class AdversarialExamples(Resource):
         return job_list, 200, None
 
     def post(self):
-        # if "dataset" in g.json and "trained-model" in g.json:
-        #     try:
-        #         model = AlgorithmConfiguration.objects.get(id=g.json["trained-model"])
-        #     except:
-        #         logging.log(logging.INFO, msg="Trained-model not found.")
-        #         abort(404, "Model not found")
-        #         return
-        #     try:
-        #         dataset = Dataset.objects.get(id=g.json["dataset"])
-        #     except:
-        #         logging.log(logging.INFO, msg="Dataset not found.")
-        #         abort(404, "Dataset not found")
-        #         return
-        # else:
-        #     logging.log(logging.INFO, msg="Missing parameters.")
-        #     abort(400, "Bad request. Missing parameters.")
-        #     return
 
         with Connection(conn):
             q = Queue(connection=conn, name="adv-gen")

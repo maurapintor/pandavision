@@ -1,21 +1,13 @@
 web:
-  build: .
-  command: python3 __init__.py
+  image: pandavision
+  command: python -m app.runserver
   ports:
-    - "8080:5000"
-  volumes:
-    - .:/todo
+    - "8080:8080"
   links:
-    - mongo
     - redisdb
   environment:
   - REDIS_HOST=redisdb
   - REDIS_PORT=6379
-
-mongo:
-  image: mongo:3.7.3 # From DockerHub
-  ports:
-    - "27017:27017"
 
 redisdb:
   image: "redis"
@@ -24,12 +16,14 @@ redisdb:
 
 
 worker:
-  build: .
-  command: python3 worker.py
+  image: pandavision
+  command: python -m worker
+  volumes:
+    - ./appdata:/data
   links:
     - redisdb
-    - mongo
   environment:
   - REDIS_HOST=redisdb
   - REDIS_PORT=6379
+  - SHARED_DATA_FOLDER=/data
 
