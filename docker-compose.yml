@@ -6,14 +6,13 @@ web:
   links:
     - redisdb
   environment:
-  - REDIS_HOST=redisdb
-  - REDIS_PORT=6379
+    - REDIS_HOST=redisdb
+    - REDIS_PORT=6379
 
 redisdb:
   image: "redis"
   ports:
     - "6379:6379"
-
 
 worker:
   image: pandavision
@@ -23,7 +22,8 @@ worker:
   links:
     - redisdb
   environment:
-  - REDIS_HOST=redisdb
-  - REDIS_PORT=6379
-  - SHARED_DATA_FOLDER=/data
+    - REDIS_HOST=redisdb
+    - REDIS_PORT=6379
+    - SHARED_DATA_FOLDER=/data
+
 
