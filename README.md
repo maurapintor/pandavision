@@ -1,5 +1,5 @@
-# PandaVision
-:rocket: Integrate and automate security evaluations with onnx, pytorch, and SecML!
+# :rocket: PandaVision
+Integrate and automate security evaluations with onnx, pytorch, and SecML!
 
 ## Index
 
@@ -7,7 +7,7 @@ TODO
 
 ## Installation
 
-### Starting the server without Docker
+### :snake: Starting the server without Docker
 
 If you want to run the server with docker, skip to the [next section](#starting-the-server-with-docker).
 
@@ -47,7 +47,7 @@ Now open another shell and run the server:
 python3 runserver.py
 ```
 
-### Starting the server with docker
+### :whale: Starting the server with docker
 
 If you already started the server locally, you can skip to the [next section](#usage).
 
@@ -79,7 +79,7 @@ the number `2` with the number of workers you want to set up):
 docker-compose up --scale worker=2
 ```
 
-## Usage
+## :mechanical_arm: Usage
 
 TODO add instructions on how to create the file and how to create/get models.
 
