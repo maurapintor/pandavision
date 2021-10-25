@@ -1,4 +1,4 @@
-# :rocket: :panda_face: PandaVision
+# :rocket: :panda_face: :fire: PandaVision
 Integrate and automate security evaluations with onnx, pytorch, and SecML!
 
 ## Index
