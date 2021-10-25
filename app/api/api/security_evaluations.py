@@ -17,9 +17,10 @@ import os
 
 from app.adv.evaluation_manager import EvaluationManager
 from app.api.api import Resource
-from worker import conn
+from app.worker import conn
 
-SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', '/data')
+SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', 'appdata/')
+
 
 status_handling_dict = {
     "started": (lambda: StartedJobRegistry().get_job_ids(), lambda: 1),
@@ -31,8 +32,6 @@ status_handling_dict = {
 
 
 def attack(**kwargs):
-
-    # try:
     em = EvaluationManager(
         dataset_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("dataset", None)),
         perturbation_type=kwargs.get("perturbation-type", None),
@@ -42,21 +41,15 @@ def attack(**kwargs):
         evaluation_mode=kwargs.get("evaluation-mode", "complete"),
         task=kwargs.get("task", None),
         indexes=kwargs.get("indexes", None),
-        preprocessing_pipeline=kwargs.get("pipeline-path", None),
+        preprocessing=kwargs.get("preprocessing", None),
     )
-
     eval = em.sec_eval_curve()
-    # except Exception as _:
-    #     eval = None
-    #     logging.log(logging.WARNING, "Unable to perform security evaluation.")
-    #     traceback.print_exc()
     return eval
 
 
 class SecurityEvaluations(Resource):
 
     def get(self):
-
         with Connection(conn):
             s = g.args.get("status", None)
             default_queue = Queue(name='sec-evals')
@@ -74,19 +67,16 @@ class SecurityEvaluations(Resource):
         return job_list, 200, None
 
     def post(self):
-
         args = {**g.json}
-
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
             try:
                 job = q.enqueue_call(func=attack, result_ttl=5000, timeout=5000, kwargs=args)
-            except:
-                logging.log(logging.WARNING, "Unable to queue the requested process.")
+            except Exception as e:
+                logging.log(logging.WARNING, "Unable to queue the requested process. Redis service unavailable.")
                 abort(422, "Unprocessable entry. The server understands the request "
                            "entity, but was unable to process the instructions.")
                 return
-
         return job.get_id(), 202, {}
 
     def delete(self):

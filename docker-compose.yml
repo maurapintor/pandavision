@@ -16,7 +16,7 @@ redisdb:
 
 worker:
   image: pandavision
-  command: python -m worker
+  command: python -m app.worker
   volumes:
     - ./appdata:/data
   links:

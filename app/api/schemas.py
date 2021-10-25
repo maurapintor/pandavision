@@ -4,34 +4,202 @@ import six
 
 base_path = '/api'
 
-
-DefinitionsSecurityevaluationresults = {'type': 'object', 'properties': {'sec-level': {'type': 'string', 'description': 'Resulting security level of the security evaluation.', 'example': 'high'}, 'sec-value': {'type': 'number', 'example': '0.2', 'description': 'Resulting score of the security evaluation. The range depends on the chosen metric.'}, 'sec-curve': {'type': 'object', 'description': 'Complete security evaluation curve resulting from the security evaluation.', 'properties': {'x-values': {'type': 'array', 'items': {'type': 'number'}, 'example': '[0, 1, 2, 3]'}, 'y-values': {'type': 'array', 'items': {'type': 'number'}, 'example': '[10, 15, 18, 20]'}}}}}
-DefinitionsAdversarialexampleparameters = {'type': 'object', 'required': ['dataset', 'trained-model'], 'properties': {'dataset': {'type': 'string', 'description': 'Path of the dataset source of the sample image. It should be a file in format: hdf5', 'example': '/data/cifar.onnx'}, 'trained-model': {'type': 'string', 'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx', 'example': 'data/c78as6cdasjh3ds.hdf5'}, 'performance-metric': {'type': 'string', 'description': 'Name of the performance metric to use. (available: scores)', 'example': 'scores'}, 'perturbation-type': {'type': 'string', 'description': 'Type of the perturbation to use to generate adversarial examples.', 'example': 'max-norm'}, 'perturbation-values': {'type': 'array', 'description': 'List of values to use for generating the perturbations.', 'items': {'type': 'number'}, 'example': '[0, 0.05, 0.1]'}}}
-DefinitionsEvaluationparameters = {'type': 'object', 'required': ['dataset', 'trained-model'], 'properties': {'dataset': {'type': 'string', 'description': 'Path of the dataset to use for performance evaluation. It should be a file in format: hdf5.', 'example': '/data/cifar10.hdf5'}, 'trained-model': {'type': 'string', 'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx.', 'example': '/data/resnet18/resnet18_pi123.onnx'}, 'performance-metric': {'type': 'string', 'description': 'Name of the performance metric to use. One of: classification-accuracy.', 'example': 'classification-accuracy'}, 'perturbation-type': {'type': 'string', 'description': 'Type of the perturbation to use to generate adversarial examples. One of: max-norm, random.', 'example': 'max-norm'}, 'perturbation-values': {'type': 'array', 'description': 'List of values to use for generating the perturbations.', 'items': {'type': 'number'}, 'example': '[0, 1.0, 2.0, 5.0, 10.0]'}, 'evaluation-mode': {'type': 'string', 'description': 'Whether to run the experiment in fast or complete mode. Complete mode takes longer to execute.', 'example': 'fast'}, 'task': {'type': 'string', 'description': 'Final task achieved by the model. This is used for choosing the attack algorithm. One of: classification, detection.', 'example': 'classification'}, 'indexes': {'type': 'array', 'description': 'List of indexes to use for sampling the dataset. If no value is passed, a random sample will be used, with number of elements chosen according to the selected mode.', 'items': {'type': 'number'}, 'example': '[0, 0.05, 0.1]'}, 'config-path': {'type': 'string', 'description': 'Path of the configuration file needed for correctly preparing the model. Currently required only for YOLO anchors. If no value is passed, the configuration will not be considered.', 'example': '/tmp/config.json'}, 'pipeline-path': {'type': 'string', 'description': 'File containing the specifications for the preprocessing pipeline. If no value is passed, the preprocessing will be ignored (a standard ToTensor will be applied).'}}}
+DefinitionsSecurityevaluationresults = {'type': 'object', 'properties': {
+    'sec-level': {'type': 'string', 'description': 'Resulting security level of the security evaluation.',
+                  'example': 'high'}, 'sec-value': {'type': 'number', 'example': '0.2',
+                                                    'description': 'Resulting score of the security evaluation. The range depends on the chosen metric.'},
+    'sec-curve': {'type': 'object',
+                  'description': 'Complete security evaluation curve resulting from the security evaluation.',
+                  'properties': {'x-values': {'type': 'array', 'items': {'type': 'number'}, 'example': '[0, 1, 2, 3]'},
+                                 'y-values': {'type': 'array', 'items': {'type': 'number'},
+                                              'example': '[10, 15, 18, 20]'}}}}}
+DefinitionsAdversarialexampleparameters = {'type': 'object', 'required': ['dataset', 'trained-model'], 'properties': {
+    'dataset': {'type': 'string',
+                'description': 'Path of the dataset source of the sample image. It should be a file in format: hdf5',
+                'example': '/data/cifar.onnx'}, 'trained-model': {'type': 'string',
+                                                                  'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx',
+                                                                  'example': 'data/c78as6cdasjh3ds.hdf5'},
+    'performance-metric': {'type': 'string',
+                           'description': 'Name of the performance metric to use. (available: scores)',
+                           'example': 'scores'}, 'perturbation-type': {'type': 'string',
+                                                                       'description': 'Type of the perturbation to use to generate adversarial examples.',
+                                                                       'example': 'max-norm'},
+    'perturbation-values': {'type': 'array', 'description': 'List of values to use for generating the perturbations.',
+                            'items': {'type': 'number'}, 'example': '[0, 0.05, 0.1]'}}}
+DefinitionsEvaluationparameters = {'type': 'object', 'required': ['dataset', 'trained-model'], 'properties': {
+    'dataset': {'type': 'string',
+                'description': 'Path of the dataset to use for performance evaluation. It should be a file in format: hdf5.',
+                'example': '/data/cifar10.hdf5'}, 'trained-model': {'type': 'string',
+                                                                    'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx.',
+                                                                    'example': '/data/resnet18/resnet18_pi123.onnx'},
+    'performance-metric': {'type': 'string',
+                           'description': 'Name of the performance metric to use. One of: classification-accuracy.',
+                           'example': 'classification-accuracy'}, 'perturbation-type': {'type': 'string',
+                                                                                        'description': 'Type of the perturbation to use to generate adversarial examples. One of: max-norm, random.',
+                                                                                        'example': 'max-norm'},
+    'perturbation-values': {'type': 'array', 'description': 'List of values to use for generating the perturbations.',
+                            'items': {'type': 'number'}, 'example': '[0, 1.0, 2.0, 5.0, 10.0]'},
+    'evaluation-mode': {'type': 'string',
+                        'description': 'Whether to run the experiment in fast or complete mode. Complete mode takes longer to execute.',
+                        'example': 'fast'}, 'task': {'type': 'string',
+                                                     'description': 'Final task achieved by the model. This is used for choosing the attack algorithm. One of: classification, detection.',
+                                                     'example': 'classification'}, 'indexes': {'type': 'array',
+                                                                                               'description': 'List of indexes to use for sampling the dataset. If no value is passed, a random sample will be used, with number of elements chosen according to the selected mode.',
+                                                                                               'items': {
+                                                                                                   'type': 'number'},
+                                                                                               'example': '[0, 0.05, 0.1]'},
+    'config-path': {'type': 'string',
+                    'description': 'Path of the configuration file needed for correctly preparing the model. Currently required only for YOLO anchors. If no value is passed, the configuration will not be considered.',
+                    'example': '/tmp/config.json'}, 'pipeline-path': {'type': 'string',
+                                                                      'description': 'File containing the specifications for the preprocessing pipeline. If no value is passed, the preprocessing will be ignored (a standard ToTensor will be applied).'}}}
 
 validators = {
-    ('security_evaluations', 'POST'): {'json': {'type': 'object', 'required': ['dataset', 'trained-model'], 'properties': {'dataset': {'type': 'string', 'description': 'Path of the dataset to use for performance evaluation. It should be a file in format: hdf5.', 'example': '/data/cifar10.hdf5'}, 'trained-model': {'type': 'string', 'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx.', 'example': '/data/resnet18/resnet18_pi123.onnx'}, 'performance-metric': {'type': 'string', 'description': 'Name of the performance metric to use. One of: classification-accuracy.', 'example': 'classification-accuracy'}, 'perturbation-type': {'type': 'string', 'description': 'Type of the perturbation to use to generate adversarial examples. One of: max-norm, random.', 'example': 'max-norm'}, 'perturbation-values': {'type': 'array', 'description': 'List of values to use for generating the perturbations.', 'items': {'type': 'number'}, 'example': '[0, 1.0, 2.0, 5.0, 10.0]'}, 'evaluation-mode': {'type': 'string', 'description': 'Whether to run the experiment in fast or complete mode. Complete mode takes longer to execute.', 'example': 'fast'}, 'task': {'type': 'string', 'description': 'Final task achieved by the model. This is used for choosing the attack algorithm. One of: classification, detection.', 'example': 'classification'}, 'indexes': {'type': 'array', 'description': 'List of indexes to use for sampling the dataset. If no value is passed, a random sample will be used, with number of elements chosen according to the selected mode.', 'items': {'type': 'number'}, 'example': '[0, 0.05, 0.1]'}, 'config-path': {'type': 'string', 'description': 'Path of the configuration file needed for correctly preparing the model. Currently required only for YOLO anchors. If no value is passed, the configuration will not be considered.', 'example': '/tmp/config.json'}, 'pipeline-path': {'type': 'string', 'description': 'File containing the specifications for the preprocessing pipeline. If no value is passed, the preprocessing will be ignored (a standard ToTensor will be applied).'}}}, },
-    ('security_evaluations', 'GET'): {'args': {'required': [], 'properties': {'status': {'description': 'Filter all evaluation jobs by status.', 'type': 'string'}}}},
-    ('security_evaluations', 'DELETE'): {'args': {'required': [], 'properties': {'status': {'description': 'Delete all jobs with the given status', 'type': 'string'}}}},
-    ('adversarial_examples', 'POST'): {'json': {'type': 'object', 'required': ['dataset', 'trained-model'], 'properties': {'dataset': {'type': 'string', 'description': 'Path of the dataset source of the sample image. It should be a file in format: hdf5', 'example': '/data/cifar.onnx'}, 'trained-model': {'type': 'string', 'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx', 'example': 'data/c78as6cdasjh3ds.hdf5'}, 'performance-metric': {'type': 'string', 'description': 'Name of the performance metric to use. (available: scores)', 'example': 'scores'}, 'perturbation-type': {'type': 'string', 'description': 'Type of the perturbation to use to generate adversarial examples.', 'example': 'max-norm'}, 'perturbation-values': {'type': 'array', 'description': 'List of values to use for generating the perturbations.', 'items': {'type': 'number'}, 'example': '[0, 0.05, 0.1]'}}}},
-    ('adversarial_examples', 'DELETE'): {'args': {'required': [], 'properties': {'status': {'description': 'Delete all jobs with the given status', 'type': 'string'}}}},
+    ('security_evaluations', 'POST'): {'json': {'type': 'object', 'required': ['dataset', 'trained-model'],
+                                                'properties': {'dataset': {'type': 'string',
+                                                                           'description': 'Path of the dataset to use for performance evaluation. It should be a file in format: hdf5.',
+                                                                           'example': '/data/cifar10.hdf5'},
+                                                               'trained-model': {'type': 'string',
+                                                                                 'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx.',
+                                                                                 'example': '/data/resnet18/resnet18_pi123.onnx'},
+                                                               'performance-metric': {'type': 'string',
+                                                                                      'description': 'Name of the performance metric to use. One of: classification-accuracy.',
+                                                                                      'example': 'classification-accuracy'},
+                                                               'perturbation-type': {'type': 'string',
+                                                                                     'description': 'Type of the perturbation to use to generate adversarial examples. One of: max-norm, random.',
+                                                                                     'example': 'max-norm'},
+                                                               'perturbation-values': {'type': 'array',
+                                                                                       'description': 'List of values to use for generating the perturbations.',
+                                                                                       'items': {'type': 'number'},
+                                                                                       'example': '[0, 1.0, 2.0, 5.0, 10.0]'},
+                                                               'evaluation-mode': {'type': 'string',
+                                                                                   'description': 'Whether to run the experiment in fast or complete mode. Complete mode takes longer to execute.',
+                                                                                   'example': 'fast'},
+                                                               'task': {'type': 'string',
+                                                                        'description': 'Final task achieved by the model. This is used for choosing the attack algorithm. One of: classification, detection.',
+                                                                        'example': 'classification'},
+                                                               'indexes': {'type': 'array',
+                                                                           'description': 'List of indexes to use for sampling the dataset. If no value is passed, a random sample will be used, with number of elements chosen according to the selected mode.',
+                                                                           'items': {'type': 'number'},
+                                                                           'example': '[0, 0.05, 0.1]'},
+                                                               'config-path': {'type': 'string',
+                                                                               'description': 'Path of the configuration file needed for correctly preparing the model. Currently required only for YOLO anchors. If no value is passed, the configuration will not be considered.',
+                                                                               'example': '/tmp/config.json'},
+                                                               'preprocessing': {'type': 'object',
+                                                                                 'description': 'File containing the specifications for the preprocessing pipeline. If no value is passed, the standard imagenet preprocessing will be used. Pass explicit empty dictionary for no preprocessing.',
+                                                                                 'properties': {
+                                                                                     'mean': {'type': 'array',
+                                                                                              'items': {
+                                                                                                  'type': 'number'}},
+                                                                                     'std': {
+                                                                                         'type': 'array',
+                                                                                         'items': {
+                                                                                             'type': 'number'}}
+                                                                                     }}}}, },
+    ('security_evaluations', 'GET'): {'args': {'required': [], 'properties': {
+        'status': {'description': 'Filter all evaluation jobs by status.', 'type': 'string'}}}},
+    ('security_evaluations', 'DELETE'): {'args': {'required': [], 'properties': {
+        'status': {'description': 'Delete all jobs with the given status', 'type': 'string'}}}},
+    ('adversarial_examples', 'POST'): {'json': {'type': 'object', 'required': ['dataset', 'trained-model'],
+                                                'properties': {'dataset': {'type': 'string',
+                                                                           'description': 'Path of the dataset source of the sample image. It should be a file in format: hdf5',
+                                                                           'example': '/data/cifar.onnx'},
+                                                               'trained-model': {'type': 'string',
+                                                                                 'description': 'Path of the pre-trained model to evaluate. It should be a file in format: onnx',
+                                                                                 'example': 'data/c78as6cdasjh3ds.hdf5'},
+                                                               'performance-metric': {'type': 'string',
+                                                                                      'description': 'Name of the performance metric to use. (available: scores)',
+                                                                                      'example': 'scores'},
+                                                               'perturbation-type': {'type': 'string',
+                                                                                     'description': 'Type of the perturbation to use to generate adversarial examples.',
+                                                                                     'example': 'max-norm'},
+                                                               'perturbation-values': {'type': 'array',
+                                                                                       'description': 'List of values to use for generating the perturbations.',
+                                                                                       'items': {'type': 'number'},
+                                                                                       'example': '[0, 0.05, 0.1]'}}}},
+    ('adversarial_examples', 'DELETE'): {'args': {'required': [], 'properties': {
+        'status': {'description': 'Delete all jobs with the given status', 'type': 'string'}}}},
 }
 
 filters = {
-    ('security_evaluations', 'POST'): {202: {'headers': {'Location': {'description': 'Location of the newly created job resource.', 'type': 'string'}}, 'schema': {'type': 'string', 'description': 'ID of the security evaluation job.', 'example': 'job123'}}, 400: {'headers': None, 'schema': None}, 404: {'headers': None, 'schema': None}, 422: {'headers': None, 'schema': None}},
-    ('security_evaluations', 'GET'): {200: {'headers': None, 'schema': {'type': 'array', 'description': 'List of queued, running and finished jobs.', 'items': {'type': 'object', 'description': 'Job element.', 'properties': {'id': {'type': 'string', 'example': 'job123', 'description': 'ID of the job.'}, 'job-status': {'type': 'string', 'example': 'running', 'description': 'Status of the job.'}}}}}, 400: {'headers': None, 'schema': None}},
-    ('security_evaluations', 'DELETE'): {200: {'headers': None, 'schema': None}, 400: {'headers': None, 'schema': None}},
-    ('security_evaluations_id', 'GET'): {200: {'headers': None, 'schema': {'type': 'object', 'properties': {'job-status': {'type': 'string', 'example': 'running'}}, 'description': 'Status of the job.', 'example': 'running'}}, 303: {'headers': {'Location': {'description': 'Location of the results resource produced by the job.', 'type': 'string'}}, 'schema': None}, 404: {'headers': None, 'schema': None}},
-    ('security_evaluations_id', 'DELETE'): {200: {'headers': None, 'schema': None}, 404: {'headers': None, 'schema': None}},
-    ('security_evaluations_id_output', 'GET'): {200: {'headers': None, 'schema': {'type': 'object', 'properties': {'sec-level': {'type': 'string', 'description': 'Resulting security level of the security evaluation.', 'example': 'high'}, 'sec-value': {'type': 'number', 'example': '0.2', 'description': 'Resulting score of the security evaluation. The range depends on the chosen metric.'}, 'sec-curve': {'type': 'object', 'description': 'Complete security evaluation curve resulting from the security evaluation.', 'properties': {'x-values': {'type': 'array', 'items': {'type': 'number'}, 'example': '[0, 1, 2, 3]'}, 'y-values': {'type': 'array', 'items': {'type': 'number'}, 'example': '[10, 15, 18, 20]'}}}}}}, 307: {'headers': {'Location': {'description': 'Location of the job resource that is assigned to process the results.', 'type': 'string'}}, 'schema': None}, 404: {'headers': None, 'schema': None}, 410: {'headers': None, 'schema': None}},
-    ('security_evaluations_id_output', 'DELETE'): {200: {'headers': None, 'schema': None}, 307: {'headers': None, 'schema': None}, 404: {'headers': None, 'schema': None}},
-    ('adversarial_examples', 'POST'): {202: {'headers': None, 'schema': {'type': 'string', 'description': 'ID of the security evaluation job.', 'example': 'job123'}}, 404: {'headers': None, 'schema': None}, 405: {'headers': None, 'schema': None}, 422: {'headers': None, 'schema': None}},
-    ('adversarial_examples', 'GET'): {200: {'headers': None, 'schema': {'type': 'array', 'description': 'List of queued, running and finished jobs.', 'items': {'type': 'object', 'description': 'Job element.', 'properties': {'id': {'type': 'string', 'example': 'job123', 'description': 'ID of the job.'}, 'job-status': {'type': 'string', 'example': 'running', 'description': 'Status of the job.'}}}}}, 400: {'headers': None, 'schema': None}},
-    ('adversarial_examples', 'DELETE'): {200: {'headers': None, 'schema': None}, 400: {'headers': None, 'schema': None}},
-    ('adversarial_examples_id', 'GET'): {200: {'headers': None, 'schema': {'type': 'object', 'properties': {'job-status': {'type': 'string', 'example': 'running'}}, 'description': 'Status of the job.', 'example': 'running'}}, 303: {'headers': {'Location': {'description': 'Location of the results resource produced by the job.', 'type': 'string'}}, 'schema': None}, 404: {'headers': None, 'schema': None}},
-    ('adversarial_examples_id', 'DELETE'): {200: {'headers': None, 'schema': None}, 404: {'headers': None, 'schema': None}},
-    ('adversarial_examples_id_output', 'GET'): {200: {'headers': None, 'schema': {'type': 'file', 'description': 'PNG image of adversarial example.'}}, 307: {'headers': {'Location': {'description': 'Location of the job resource that is assigned to process the results.', 'type': 'string'}}, 'schema': None}, 404: {'headers': None, 'schema': None}, 410: {'headers': None, 'schema': None}},
-    ('adversarial_examples_id_output', 'DELETE'): {200: {'headers': None, 'schema': None}, 307: {'headers': None, 'schema': None}, 404: {'headers': None, 'schema': None}},
+    ('security_evaluations', 'POST'): {
+        202: {'headers': {'Location': {'description': 'Location of the newly created job resource.', 'type': 'string'}},
+              'schema': {'type': 'string', 'description': 'ID of the security evaluation job.', 'example': 'job123'}},
+        400: {'headers': None, 'schema': None}, 404: {'headers': None, 'schema': None},
+        422: {'headers': None, 'schema': None}},
+    ('security_evaluations', 'GET'): {200: {'headers': None, 'schema': {'type': 'array',
+                                                                        'description': 'List of queued, running and finished jobs.',
+                                                                        'items': {'type': 'object',
+                                                                                  'description': 'Job element.',
+                                                                                  'properties': {
+                                                                                      'id': {'type': 'string',
+                                                                                             'example': 'job123',
+                                                                                             'description': 'ID of the job.'},
+                                                                                      'job-status': {'type': 'string',
+                                                                                                     'example': 'running',
+                                                                                                     'description': 'Status of the job.'}}}}},
+                                      400: {'headers': None, 'schema': None}},
+    ('security_evaluations', 'DELETE'): {200: {'headers': None, 'schema': None},
+                                         400: {'headers': None, 'schema': None}},
+    ('security_evaluations_id', 'GET'): {200: {'headers': None, 'schema': {'type': 'object', 'properties': {
+        'job-status': {'type': 'string', 'example': 'running'}}, 'description': 'Status of the job.',
+                                                                           'example': 'running'}}, 303: {'headers': {
+        'Location': {'description': 'Location of the results resource produced by the job.', 'type': 'string'}},
+        'schema': None},
+                                         404: {'headers': None, 'schema': None}},
+    ('security_evaluations_id', 'DELETE'): {200: {'headers': None, 'schema': None},
+                                            404: {'headers': None, 'schema': None}},
+    ('security_evaluations_id_output', 'GET'): {200: {'headers': None, 'schema': {'type': 'object', 'properties': {
+        'sec-level': {'type': 'string', 'description': 'Resulting security level of the security evaluation.',
+                      'example': 'high'}, 'sec-value': {'type': 'number', 'example': '0.2',
+                                                        'description': 'Resulting score of the security evaluation. The range depends on the chosen metric.'},
+        'sec-curve': {'type': 'object',
+                      'description': 'Complete security evaluation curve resulting from the security evaluation.',
+                      'properties': {
+                          'x-values': {'type': 'array', 'items': {'type': 'number'}, 'example': '[0, 1, 2, 3]'},
+                          'y-values': {'type': 'array', 'items': {'type': 'number'},
+                                       'example': '[10, 15, 18, 20]'}}}}}}, 307: {'headers': {
+        'Location': {'description': 'Location of the job resource that is assigned to process the results.',
+                     'type': 'string'}}, 'schema': None}, 404: {'headers': None, 'schema': None},
+                                                410: {'headers': None, 'schema': None}},
+    ('security_evaluations_id_output', 'DELETE'): {200: {'headers': None, 'schema': None},
+                                                   307: {'headers': None, 'schema': None},
+                                                   404: {'headers': None, 'schema': None}},
+    ('adversarial_examples', 'POST'): {202: {'headers': None, 'schema': {'type': 'string',
+                                                                         'description': 'ID of the security evaluation job.',
+                                                                         'example': 'job123'}},
+                                       404: {'headers': None, 'schema': None}, 405: {'headers': None, 'schema': None},
+                                       422: {'headers': None, 'schema': None}},
+    ('adversarial_examples', 'GET'): {200: {'headers': None, 'schema': {'type': 'array',
+                                                                        'description': 'List of queued, running and finished jobs.',
+                                                                        'items': {'type': 'object',
+                                                                                  'description': 'Job element.',
+                                                                                  'properties': {
+                                                                                      'id': {'type': 'string',
+                                                                                             'example': 'job123',
+                                                                                             'description': 'ID of the job.'},
+                                                                                      'job-status': {'type': 'string',
+                                                                                                     'example': 'running',
+                                                                                                     'description': 'Status of the job.'}}}}},
+                                      400: {'headers': None, 'schema': None}},
+    ('adversarial_examples', 'DELETE'): {200: {'headers': None, 'schema': None},
+                                         400: {'headers': None, 'schema': None}},
+    ('adversarial_examples_id', 'GET'): {200: {'headers': None, 'schema': {'type': 'object', 'properties': {
+        'job-status': {'type': 'string', 'example': 'running'}}, 'description': 'Status of the job.',
+                                                                           'example': 'running'}}, 303: {'headers': {
+        'Location': {'description': 'Location of the results resource produced by the job.', 'type': 'string'}},
+        'schema': None},
+                                         404: {'headers': None, 'schema': None}},
+    ('adversarial_examples_id', 'DELETE'): {200: {'headers': None, 'schema': None},
+                                            404: {'headers': None, 'schema': None}},
+    ('adversarial_examples_id_output', 'GET'): {
+        200: {'headers': None, 'schema': {'type': 'file', 'description': 'PNG image of adversarial example.'}}, 307: {
+            'headers': {
+                'Location': {'description': 'Location of the job resource that is assigned to process the results.',
+                             'type': 'string'}}, 'schema': None}, 404: {'headers': None, 'schema': None},
+        410: {'headers': None, 'schema': None}},
+    ('adversarial_examples_id_output', 'DELETE'): {200: {'headers': None, 'schema': None},
+                                                   307: {'headers': None, 'schema': None},
+                                                   404: {'headers': None, 'schema': None}},
 }
 
 scopes = {
@@ -51,6 +219,7 @@ class Security(object):
     def scopes_loader(self, func):
         self._loader = func
         return func
+
 
 security = Security()
 

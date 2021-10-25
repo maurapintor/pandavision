@@ -40,7 +40,7 @@ python3 worker.py
 Now open another shell and run the server:
 
 ```bash
-python3 runserver.py
+python3 app/runserver.py
 ```
 
 ### Starting the server with docker
@@ -111,6 +111,7 @@ The request should specify the following parameters in its body:
 * **perturbation-type** (*string*): type of perturbation to apply (available: "max-norm" or "random").
 * **perturbation-values** (*Array of floats*): array of values to use for crafting the adversarial examples. These are specified as percentage of the input range, fixed, in [0, 1] (*e.g.*, a value of 0.05 will apply a perturbation of maximum 5% of the input scale).
 * **indexes** (*Array of ints*): if the list of indexes is specified, it will be used for creating a specific sample from the dataset.
+* **preprocessing** (*dict*): dictionary with keys "mean" and "std" for defining custom preprocessing. The values should be expressed as lists. If not set, standard imagenet preprocessing will be applied. Otherwise, specify an empty dict for no preprocessing.
 
 ```json
 {
