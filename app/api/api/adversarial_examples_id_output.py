@@ -9,7 +9,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from rq.job import Job
 
 from app.api.api import Resource
-from worker import conn
+from app.worker import conn
 
 
 class AdversarialExamplesIdOutput(Resource):

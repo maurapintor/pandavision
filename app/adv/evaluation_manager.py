@@ -7,9 +7,9 @@ from typing import List, Union
 
 import numpy as np
 
-from adv.classification.attack_classification import AttackClassification
-from adv.dataset_loader import CustomDatasetLoader
-from adv.model_loader import ModelLoader
+from .classification.attack_classification import AttackClassification
+from .dataset_loader import CustomDatasetLoader
+from .model_loader import ModelLoader
 
 
 class EvaluationManager:
@@ -21,7 +21,7 @@ class EvaluationManager:
                  evaluation_mode: str = 'complete',
                  task: str = 'classification',
                  indexes: List[int] = None,
-                 preprocessing_pipeline: str = None):
+                 preprocessing: dict = None):
         """Performs security evaluation for a given model and dataset.
 
         :param dataset_id: Path of the dataset.
@@ -52,8 +52,8 @@ class EvaluationManager:
         :param config_file: Path of json file to use as configuration
             for the experiment. It could contain anchors, additional
             parameters, task information.
-        :param preprocessing_pipeline: Path of json file to use as configuration
-            for the preprocessing modules.
+        :param preprocessing: Dictionary containing the key `mean` and
+            `std` for defining a preprocessing standardizer block.
         """
 
         self._dataset_id = dataset_id
@@ -66,10 +66,7 @@ class EvaluationManager:
                              "".format(self._model_id))
         self._task = task
         self._indexes = indexes
-        if preprocessing_pipeline is not None:
-            self.pipeline_path = preprocessing_pipeline
-        else:
-            self.pipeline_path = None
+        self._preprocessing = preprocessing
         self._evaluation_mode = evaluation_mode
         if self._evaluation_mode == 'fast':
             if self._task == 'classification':
@@ -125,7 +122,8 @@ class EvaluationManager:
         self.n_output_classes = len(self._validation_loader.dataset.classes)
 
     def _load_model_by_id(self):
-        self._model = ModelLoader(model_path=self._model_id, input_shape=self.input_shape).load_model()
+        self._model = ModelLoader(model_path=self._model_id, input_shape=self.input_shape,
+                                  preprocessing=self._preprocessing).load_model()
 
     def prepare_attack(self):
         if self._task == 'classification':

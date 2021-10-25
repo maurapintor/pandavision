@@ -10,7 +10,7 @@ from rq.registry import StartedJobRegistry, FinishedJobRegistry, DeferredJobRegi
 
 from app.adv.evaluation_manager import EvaluationManager
 from app.api.api import Resource
-from worker import conn
+from app.worker import conn
 
 status_handling_dict = {
     "started": (lambda: StartedJobRegistry().get_job_ids(), lambda: 1),

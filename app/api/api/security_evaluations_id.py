@@ -9,7 +9,7 @@ from flask import abort
 from rq.job import Job
 
 from app.api.api import Resource
-from worker import conn
+from app.worker import conn
 
 
 class SecurityEvaluationsId(Resource):

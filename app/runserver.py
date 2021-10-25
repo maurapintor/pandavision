@@ -37,4 +37,4 @@ if __name__ == '__main__':
     port = int(option_dict['port'])
 
     app = create_app()
-    app.run(debug=False, port=port, host='0.0.0.0', threaded=True)
+    app.run(debug=True, port=port, host='0.0.0.0', threaded=True)

@@ -17,9 +17,10 @@ import os
 
 from app.adv.evaluation_manager import EvaluationManager
 from app.api.api import Resource
-from worker import conn
+from app.worker import conn
 
 SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', 'appdata/')
+
 
 status_handling_dict = {
     "started": (lambda: StartedJobRegistry().get_job_ids(), lambda: 1),
@@ -40,7 +41,7 @@ def attack(**kwargs):
         evaluation_mode=kwargs.get("evaluation-mode", "complete"),
         task=kwargs.get("task", None),
         indexes=kwargs.get("indexes", None),
-        preprocessing_pipeline=kwargs.get("pipeline-path", None),
+        preprocessing=kwargs.get("preprocessing", None),
     )
     eval = em.sec_eval_curve()
     return eval
