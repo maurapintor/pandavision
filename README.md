@@ -1,10 +1,6 @@
 # :rocket: :panda_face: :fire: PandaVision
 Integrate and automate security evaluations with onnx, pytorch, and SecML!
 
-## Index
-
-TODO
-
 ## Installation
 
 ### Starting the server without Docker
