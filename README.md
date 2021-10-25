@@ -82,6 +82,8 @@ docker-compose up --scale worker=2
 
 ## Usage
 
+TODO add instructions on how to create the file and how to create/get models.
+
 ### How to start a security evaluation job
 A security evaluation job can be enqueued with a `POST` request to `/api/security_evaluations`. 
 The API returns the **job unique ID** that can be used to access **job status** and **results**. 
