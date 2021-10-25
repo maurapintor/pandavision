@@ -1,6 +1,6 @@
 # :rocket: :panda_face: :fire: PandaVision
 Integrate and automate security evaluations with onnx, pytorch, and SecML!
-
+    
 ## Installation
 
 ### Starting the server without Docker
@@ -77,10 +77,25 @@ docker-compose up --scale worker=2
 
 ## Usage
 
-TODO add instructions on how to create the file and how to create/get models.
+### Supported models
 
-You can also create your own dataset with [this gist](https://gist.github.com/maurapintor/25a6d80f9f86d36f72a4b2cc8540008f).
+You can export your own [ONNX](https://github.com/onnx/tutorials) pretrained model from the library of your choice, 
+and pass them to the module. 
+This project uses [onnx2pytorch](https://github.com/ToriML/onnx2pytorch) as a dependency to load the ONNX models.
+Check out [the supported operations](https://github.com/ToriML/onnx2pytorch/tree/master/onnx2pytorch/operations) 
+if you encounter problems when importing the models.
+A list of pretrained models is also available in the [main page](https://github.com/ToriML/onnx2pytorch#usage).
 
+### Data preparation
+
+The module accepts [`HDF5`](https://www.hdfgroup.org/) files as data sources. 
+The file should contain the samples as the 
+format [NCHV](https://oneapi-src.github.io/oneDNN/dev_guide_understanding_memory_formats.html).
+
+Note that, while the standardization can be performed through the APIs themselves (preferred), the preprocessing 
+such as resize, reshape, rotation and normalization should be applied in this step.
+
+An example, that creates a subset of the imagenet dataset, can be found in [this gist](https://gist.github.com/maurapintor/25a6d80f9f86d36f72a4b2cc8540008f).
 
 ### How to start a security evaluation job
 A security evaluation job can be enqueued with a `POST` request to `/api/security_evaluations`. 
