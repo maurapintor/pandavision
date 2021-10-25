@@ -22,6 +22,8 @@ class ModelLoader:
             std = preprocessing.get('std', None)
             if all([mean, std]):
                 normalizer = CNormalizerMeanStd(mean=mean, std=std)
+                normalizer._mean = mean
+                normalizer._std = std
                 self._preprocessor = normalizer
             else:
                 self._preprocessor = None

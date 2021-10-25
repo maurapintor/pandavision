@@ -85,7 +85,16 @@ validators = {
                                                                                'description': 'Path of the configuration file needed for correctly preparing the model. Currently required only for YOLO anchors. If no value is passed, the configuration will not be considered.',
                                                                                'example': '/tmp/config.json'},
                                                                'preprocessing': {'type': 'object',
-                                                                                 'description': 'File containing the specifications for the preprocessing pipeline. If no value is passed, the standard imagenet preprocessing will be used. Pass explicit empty dictionary for no preprocessing.'}}}, },
+                                                                                 'description': 'File containing the specifications for the preprocessing pipeline. If no value is passed, the standard imagenet preprocessing will be used. Pass explicit empty dictionary for no preprocessing.',
+                                                                                 'properties': {
+                                                                                     'mean': {'type': 'array',
+                                                                                              'items': {
+                                                                                                  'type': 'number'}},
+                                                                                     'std': {
+                                                                                         'type': 'array',
+                                                                                         'items': {
+                                                                                             'type': 'number'}}
+                                                                                     }}}}, },
     ('security_evaluations', 'GET'): {'args': {'required': [], 'properties': {
         'status': {'description': 'Filter all evaluation jobs by status.', 'type': 'string'}}}},
     ('security_evaluations', 'DELETE'): {'args': {'required': [], 'properties': {
@@ -135,7 +144,7 @@ filters = {
         'job-status': {'type': 'string', 'example': 'running'}}, 'description': 'Status of the job.',
                                                                            'example': 'running'}}, 303: {'headers': {
         'Location': {'description': 'Location of the results resource produced by the job.', 'type': 'string'}},
-                                                                                                         'schema': None},
+        'schema': None},
                                          404: {'headers': None, 'schema': None}},
     ('security_evaluations_id', 'DELETE'): {200: {'headers': None, 'schema': None},
                                             404: {'headers': None, 'schema': None}},
@@ -178,7 +187,7 @@ filters = {
         'job-status': {'type': 'string', 'example': 'running'}}, 'description': 'Status of the job.',
                                                                            'example': 'running'}}, 303: {'headers': {
         'Location': {'description': 'Location of the results resource produced by the job.', 'type': 'string'}},
-                                                                                                         'schema': None},
+        'schema': None},
                                          404: {'headers': None, 'schema': None}},
     ('adversarial_examples_id', 'DELETE'): {200: {'headers': None, 'schema': None},
                                             404: {'headers': None, 'schema': None}},
