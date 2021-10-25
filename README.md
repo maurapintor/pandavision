@@ -10,7 +10,7 @@ TODO
 
 ### Starting the server without Docker
 
-If you want to run the server with docker, skip to the [next section](#starting-the-server-with-docker)
+If you want to run the server with docker, skip to the [next section](#starting-the-server-with-docker).
 
 This project uses [Redis-RQ](http://python-rq.org/) for handling the queue of requested jobs. 
 Please install [Redis](https://redis.io/) if you plan to run this Flask server without using Docker.
@@ -84,6 +84,8 @@ docker-compose up --scale worker=2
 
 TODO add instructions on how to create the file and how to create/get models.
 
+You can also create your own dataset with [this gist](https://gist.github.com/maurapintor/25a6d80f9f86d36f72a4b2cc8540008f).
+
 ### How to start a security evaluation job
 A security evaluation job can be enqueued with a `POST` request to `/api/security_evaluations`. 
 The API returns the **job unique ID** that can be used to access **job status** and **results**. 
@@ -94,7 +96,7 @@ The request should specify the following parameters in its body:
 * **trained-model** (*string*): the path of the onnx trained model.
 * **performance-metric** (*string*): the performance metric type that should be used to evaluate the system adversarial robustness. Currently implemented only the `classification-accuracy` metric.
 * **evaluation-mode** (*string*): one of 'fast', 'complete'. A fast evaluation will perform the experiment with a subset of the whole dataset (100 samples). For more info on the fast evaluation, see [this paper](https://dl.acm.org/doi/10.1145/3310273.3323435).
-* **task** (*string*): type of task that the model is supposed to perform. This determines the attack scenario. (available: "classification", "detection", ~~"segmentation"~~)
+* **task** (*string*): type of task that the model is supposed to perform. This determines the attack scenario. (available: "classification" - support for more use cases will be provided in the future).
 * **perturbation-type** (*string*): type of perturbation to apply (available: "max-norm" or "random").
 * **perturbation-values** (*Array of floats*): array of values to use for crafting the adversarial examples. These are specified as percentage of the input range, fixed, in [0, 1] (*e.g.*, a value of 0.05 will apply a perturbation of maximum 5% of the input scale).
 * **indexes** (*Array of ints*): if the list of indexes is specified, it will be used for creating a specific sample from the dataset.
@@ -113,6 +115,8 @@ The request should specify the following parameters in its body:
 }
 
 ```
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://god.gw.postman.com/run-collection/1276122-97709dd2-5b99-4737-ae94-2c9868b776f4?action=collection%2Ffork&collection-url=entityId%3D1276122-97709dd2-5b99-4737-ae94-2c9868b776f4%26entityType%3Dcollection%26workspaceId%3D9c875dc5-2201-4035-a06d-6567bd8a75e6)
 
 ### Job status API
 Job status can be retrieved by sending a `GET` request to `/api/security_evaluations/{id}`, where the 
