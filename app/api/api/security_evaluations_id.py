@@ -21,10 +21,11 @@ class SecurityEvaluationsId(Resource):
             logging.log(logging.INFO, "GET /api/security_evaluations/{}. Job ID not found".format(id))
             abort(404, "Job ID not found.")
             return
-        if job.is_finished:
+        if job.is_failed:
+            return job.get_status(), 200, {}
+        elif job.is_finished:
             # redirect to job output API
-            print(id)
-            return job._status, 303, {'Location': "/api/security_evaluations/{}/output".format(id)}
+            return job.get_status(), 303, {'Location': "/api/security_evaluations/{}/output".format(id)}
         return {"job-status": job._status}, 200, None
 
     def delete(self, id):

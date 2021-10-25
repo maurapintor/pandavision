@@ -40,7 +40,7 @@ python3 worker.py
 Now open another shell and run the server:
 
 ```bash
-python3 runserver.py
+python3 app/runserver.py
 ```
 
 ### Starting the server with docker
