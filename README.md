@@ -1,6 +1,5 @@
 # PandaVision
-Security evaluation module with onnx, pytorch, and SecML.
-
+:rocket: Integrate and automate security evaluations with onnx, pytorch, and SecML!
 
 ## Index
 
