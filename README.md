@@ -86,6 +86,7 @@ TODO add instructions on how to create the file and how to create/get models.
 
 You can also create your own dataset with [this gist](https://gist.github.com/maurapintor/25a6d80f9f86d36f72a4b2cc8540008f).
 
+
 ### How to start a security evaluation job
 A security evaluation job can be enqueued with a `POST` request to `/api/security_evaluations`. 
 The API returns the **job unique ID** that can be used to access **job status** and **results**. 
@@ -115,6 +116,8 @@ The request should specify the following parameters in its body:
 }
 
 ```
+
+The API can also be tested with Postman (it is configured already to get the ID and use it for fetching results):
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://god.gw.postman.com/run-collection/1276122-97709dd2-5b99-4737-ae94-2c9868b776f4?action=collection%2Ffork&collection-url=entityId%3D1276122-97709dd2-5b99-4737-ae94-2c9868b776f4%26entityType%3Dcollection%26workspaceId%3D9c875dc5-2201-4035-a06d-6567bd8a75e6)
 
