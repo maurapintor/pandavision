@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
 import logging
@@ -18,9 +17,9 @@ import os
 from app.adv.evaluation_manager import EvaluationManager
 from app.api.api import Resource
 from app.worker import conn
+from app.config import config
 
-SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', 'appdata/')
-
+DATA_FOLDER = os.getenv('DATA_DIR', os.path.join(config.PROJECT_ROOT, config.DATA_DIR))
 
 status_handling_dict = {
     "started": (lambda: StartedJobRegistry().get_job_ids(), lambda: 1),
@@ -33,9 +32,9 @@ status_handling_dict = {
 
 def attack(**kwargs):
     em = EvaluationManager(
-        dataset_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("dataset", None)),
+        dataset_id=os.path.join(DATA_FOLDER, kwargs.get("dataset", None)),
         perturbation_type=kwargs.get("perturbation-type", None),
-        model_id=os.path.join(SHARED_DATA_FOLDER, kwargs.get("trained-model", None)),
+        model_id=os.path.join(DATA_FOLDER, kwargs.get("trained-model", None)),
         metric=kwargs.get("performance-metric", "classification-accuracy"),
         perturbation_values=kwargs.get("perturbation-values", None),
         evaluation_mode=kwargs.get("evaluation-mode", "complete"),
@@ -71,8 +70,9 @@ class SecurityEvaluations(Resource):
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
             try:
-                job = q.enqueue_call(func=attack, result_ttl=5000, timeout=5000, kwargs=args)
+                job = q.enqueue_call(func=attack, result_ttl=int(config.RESULT_TTL), timeout=int(config.JOB_TIMEOUT), kwargs=args)
             except Exception as e:
+                print(str(e))
                 logging.log(logging.WARNING, "Unable to queue the requested process. Redis service unavailable.")
                 abort(422, "Unprocessable entry. The server understands the request "
                            "entity, but was unable to process the instructions.")

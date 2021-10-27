@@ -9,7 +9,6 @@ import os
 import redis
 from rq import Worker, Queue, Connection
 
-# use rq-dashboard for visualization
 listen = ['sec-evals', 'adv-gen']
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
