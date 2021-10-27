@@ -166,7 +166,7 @@ You can also simply open an issue with the tag "enhancement". Don't forget to gi
 If you don't have time to contribute yourself, feel free to open an issue with your suggestions.
 
 ## License 
-This project is licensed under the terms of the MIT license. See `[LICENSE](LICENSE)` for more information.
+This project is licensed under the terms of the MIT license. See [LICENSE](LICENSE) for more information.
 
 
 ## Credits
