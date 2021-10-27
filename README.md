@@ -77,6 +77,14 @@ docker-compose up --scale worker=2
 
 ## Usage
 
+### Quick start
+
+For a demo example, you can download a 
+[sample containing few images of the imagenet dataset](https://github.com/maurapintor/pandavision/releases/download/v0.1/data.h5)
+and a [resnet50-pretrained model from the onnx zoo](https://github.com/maurapintor/pandavision/releases/download/v0.1/model.onnx).
+
+And you can place the data in a directory called `appdata`, in the main root of the repository.
+
 ### Supported models
 
 You can export your own [ONNX](https://github.com/onnx/tutorials) pretrained model from the library of your choice, 
