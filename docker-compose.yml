@@ -6,27 +6,25 @@ web:
   links:
     - redisdb
   environment:
-    - REDIS_HOST=$REDIS_HOST
+    - REDIS_HOST=redisdb
     - REDIS_PORT=$REDIS_PORT
 
 redisdb:
   image: "redis"
-  command: --port $REDIS_PORT
+  command: --port ${REDIS_PORT}
   ports:
     - ${REDIS_PORT}:${REDIS_PORT}
-  environment:
-    - REDIS_PORT
 
 
 worker:
   image: pandavision
   command: python -m app.worker
   volumes:
-    - ${SHARED_DATA_DIR}:/appdata
+    - ${DATA_DIR}:/appdata
   links:
     - redisdb
   environment:
-    - REDIS_HOST=$REDIS_HOST
+    - REDIS_HOST=redisdb
     - REDIS_PORT=$REDIS_PORT
 
 

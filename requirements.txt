@@ -9,3 +9,4 @@ rq
 jsonschema
 matplotlib
 h5py
+python-dotenv

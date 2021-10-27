@@ -5,3 +5,4 @@ setup(
     package_dir={'': 'app'},
     packages=find_packages(where='app'),
 )
+
