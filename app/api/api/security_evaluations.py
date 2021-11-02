@@ -1,23 +1,18 @@
 from __future__ import absolute_import, print_function
 
 import logging
-
-from flask import g, abort
-
-from rq.registry import FinishedJobRegistry, StartedJobRegistry, DeferredJobRegistry
-from rq import Queue
-from rq import Connection
-
-# todo manage to stop a started process
-# todo change cleanup into some deletion
-
-
 import os
 
+import flask
+from flask import abort
+from flask_restful import Resource
+from rq import Connection
+from rq import Queue
+from rq.registry import FinishedJobRegistry, StartedJobRegistry, DeferredJobRegistry
+
 from app.adv.evaluation_manager import EvaluationManager
-from app.api.api import Resource
-from app.worker import conn
 from app.config import config
+from app.worker import conn
 
 DATA_FOLDER = os.getenv('DATA_DIR', os.path.join(config.PROJECT_ROOT, config.DATA_DIR))
 
@@ -38,7 +33,7 @@ def attack(**kwargs):
         metric=kwargs.get("performance-metric", "classification-accuracy"),
         perturbation_values=kwargs.get("perturbation-values", None),
         evaluation_mode=kwargs.get("evaluation-mode", "complete"),
-        task=kwargs.get("task", None),
+        task=kwargs.get("task", "classification"),
         indexes=kwargs.get("indexes", None),
         preprocessing=kwargs.get("preprocessing", None),
     )
@@ -50,7 +45,7 @@ class SecurityEvaluations(Resource):
 
     def get(self):
         with Connection(conn):
-            s = g.args.get("status", None)
+            s = flask.request.json.get("status", None)
             default_queue = Queue(name='sec-evals')
             if s in status_handling_dict:
                 jobs = [default_queue.fetch_job(job_id) for job_id in status_handling_dict[s][0]()]
@@ -66,11 +61,12 @@ class SecurityEvaluations(Resource):
         return job_list, 200, None
 
     def post(self):
-        args = {**g.json}
+        args = flask.request.json
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
             try:
-                job = q.enqueue_call(func=attack, result_ttl=int(config.RESULT_TTL), timeout=int(config.JOB_TIMEOUT), kwargs=args)
+                job = q.enqueue_call(func=attack, result_ttl=int(config.RESULT_TTL), timeout=int(config.JOB_TIMEOUT),
+                                     kwargs=args)
             except Exception as e:
                 print(str(e))
                 logging.log(logging.WARNING, "Unable to queue the requested process. Redis service unavailable.")
@@ -80,7 +76,7 @@ class SecurityEvaluations(Resource):
         return job.get_id(), 202, {}
 
     def delete(self):
-        s = g.args.get("status", None)
+        s = flask.request.json.get("status", None)
         with Connection(conn):
             if s is not None:
                 if s in status_handling_dict:

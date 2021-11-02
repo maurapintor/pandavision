@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
 import logging
 
-from flask import g, abort
+import flask
+from flask import abort
+from flask_restful import Resource
 from rq import Connection
 from rq import Queue
 from rq.registry import StartedJobRegistry, FinishedJobRegistry, DeferredJobRegistry
 
 from app.adv.evaluation_manager import EvaluationManager
-from app.api.api import Resource
 from app.worker import conn
 
 status_handling_dict = {
@@ -39,7 +39,7 @@ class AdversarialExamples(Resource):
     def get(self):
 
         with Connection(conn):
-            s = g.args.get("status", None)
+            s = flask.request.json.get("status", None)
             default_queue = Queue(name='adv-gen')
             if s in status_handling_dict:
                 jobs = [default_queue.fetch_job(job_id) for job_id in status_handling_dict[s][0]()]
@@ -59,7 +59,7 @@ class AdversarialExamples(Resource):
         with Connection(conn):
             q = Queue(connection=conn, name="adv-gen")
             try:
-                job = q.enqueue_call(func=create_adv_sample, result_ttl=5000, timeout=5000, kwargs=g.json)
+                job = q.enqueue_call(func=create_adv_sample, result_ttl=5000, timeout=5000, kwargs=flask.request.json)
             except:
                 logging.log(logging.WARNING, "Unable to queue the requested process.")
                 abort(422, "Unprocessable entry. The server understands the request "
@@ -69,7 +69,7 @@ class AdversarialExamples(Resource):
         return job.get_id(), 202, {}
 
     def delete(self):
-        s = g.args.get("status", None)
+        s = flask.request.json.get("status", None)
         with Connection(conn):
             if s is not None:
                 if s in status_handling_dict:

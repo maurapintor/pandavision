@@ -5,10 +5,8 @@ from flask import Blueprint
 import flask_restful as restful
 
 from .routes import routes
-from .validators import security
 
 
-@security.scopes_loader
 def current_scopes():
     return []
 

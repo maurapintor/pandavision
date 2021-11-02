@@ -1,14 +1,13 @@
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
 import io
 import logging
 
 from flask import make_response, abort
+from flask_restful import Resource
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from rq.job import Job
 
-from app.api.api import Resource
 from app.worker import conn
 
 

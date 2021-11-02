@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function
 
 import logging
 
 from flask import abort
+from flask_restful import Resource
 from rq.job import Job
 
-from app.api.api import Resource
 from app.worker import conn
 
 
