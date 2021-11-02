@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <h1>Select Model and Image</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+            <h4>
+                Model:
+            </h4>
+            <p>
+                {{ form.model }}
+            </p>
+            <h4>
+                Data:
+            </h4>
+            <p>
+                {{ form.data }}
+            </p>
+            <h4>
+                Perturbation model:
+            </h4>
+            <p>
+                {{ form.pert_type }}
+            </p>
+                    <h4>
+
+        <button type="submit" class="btn btn-dark mb-2">Submit</button>
+    </form>
+{% endblock %}

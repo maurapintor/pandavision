@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from .api.home import Home
 from .api.security_evaluations import SecurityEvaluations
 from .api.security_evaluations_id import SecurityEvaluationsId
 from .api.security_evaluations_id_output import SecurityEvaluationsIdOutput
@@ -9,6 +10,7 @@ from .api.adversarial_examples_id_output import AdversarialExamplesIdOutput
 
 
 routes = [
+    dict(resource=Home, urls=['/'], endpoint='home'),
     dict(resource=SecurityEvaluations, urls=['/security_evaluations'], endpoint='security_evaluations'),
     dict(resource=SecurityEvaluationsId, urls=['/security_evaluations/<id>'], endpoint='security_evaluations_id'),
     dict(resource=SecurityEvaluationsIdOutput, urls=['/security_evaluations/<id>/output'], endpoint='security_evaluations_id_output'),

@@ -11,6 +11,11 @@ from .classification.attack_classification import AttackClassification, SUPPORTE
 from .dataset_loader import CustomDatasetLoader
 from .model_loader import ModelLoader
 
+ATTACK_CHOICES = {
+    'linf': [('PGD', 'pgd-linf'), ],
+    'l2': [('PGD', 'pgd-l2'), ('CW', 'cw')],
+}
+
 
 class EvaluationManager:
     def __init__(self, dataset_id: str,
@@ -103,6 +108,9 @@ class EvaluationManager:
 
         self.cached_adv_points = None
 
+        if self._num_samples is None:
+            self._num_samples = self._validation_loader.dataset._samples.shape[0]
+
     def _load_dataset_by_id(self):
         # Dataset can be loaded from a local file path
         data_loader = CustomDatasetLoader(path=self._dataset_id,
@@ -146,22 +154,24 @@ class EvaluationManager:
             for batch_idx, (samples, labels) in enumerate(self._validation_loader):
                 if self.attack.is_min_distance(self._attack_cls):
                     if self.cached_adv_points is None:
-                        self.cached_adv_points = torch.empty(size=(self._num_samples, *self.input_shape), dtype=samples.dtype)
+                        self.cached_adv_points = torch.empty(size=(self._num_samples, *self.input_shape),
+                                                             dtype=samples.dtype)
                         self._batch_is_cached = [False for _ in range(len(self._validation_loader))]
                     if self._batch_is_cached[batch_idx] is False:
                         adv_points = torch.from_numpy(
                             self.attack.run(samples, labels, self._attack_cls, self._attack_params, eps))
-                        self.cached_adv_points[batch_idx*batch_size:
-                                               min((batch_idx+1)*batch_size, self._num_samples)] = \
+                        self.cached_adv_points[batch_idx * batch_size:
+                                               min((batch_idx + 1) * batch_size, self._num_samples)] = \
                             adv_points.detach()
                         if eps > 0:
                             self._batch_is_cached[batch_idx] = True
                     else:
-                        adv_points = self.cached_adv_points[batch_idx*batch_size:
-                                               min((batch_idx+1)*batch_size, self._num_samples), ...].clone()
+                        adv_points = self.cached_adv_points[batch_idx * batch_size:
+                                                            min((batch_idx + 1) * batch_size, self._num_samples),
+                                     ...].clone()
                     not_adv = (adv_points - samples).view(adv_points.shape[0], -1).norm(
                         dim=1, p=self.attack.attack_norm(self._attack_cls)) >= eps
-                    print ((adv_points - samples).view(adv_points.shape[0], -1).norm(
+                    print((adv_points - samples).view(adv_points.shape[0], -1).norm(
                         dim=1, p=self.attack.attack_norm(self._attack_cls)))
                     adv_points[not_adv, ...] = samples[not_adv, ...]
                 else:
@@ -177,10 +187,7 @@ class EvaluationManager:
     def generate_advx(self, samples, labels, eps):
         # TODO fix this function, apply new APIs
         self.prepare_attack()
-        if self._perturbation_type == 'max-norm':
-            adv_points = self.attack.run(samples, labels, eps)
-        else:
-            adv_points = self.attack.add_noise(samples, eps)
+        adv_points = self.attack.run(samples, labels, eps)
         return adv_points
 
     def prepare_response(self, performances: np.ndarray):

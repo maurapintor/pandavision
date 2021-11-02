@@ -20,3 +20,6 @@ class Config(dict):
 
 config = Config(config_file_path)
 config['PROJECT_ROOT'] = project_dir
+import os
+SECRET_KEY = os.urandom(32)
+config['SECRET_KEY'] = SECRET_KEY

@@ -1,18 +1,17 @@
-from __future__ import absolute_import, print_function
-
 import logging
 import os
 
 import flask
-from flask import abort
+from flask import abort, render_template
 from flask_restful import Resource
 from rq import Connection
 from rq import Queue
 from rq.registry import FinishedJobRegistry, StartedJobRegistry, DeferredJobRegistry
 
-from app.adv.evaluation_manager import EvaluationManager
+from app.adv.evaluation_manager import EvaluationManager, ATTACK_CHOICES
 from app.config import config
 from app.worker import conn
+from forms.sec_eval_form import SecEvalForm
 
 DATA_FOLDER = os.getenv('DATA_DIR', os.path.join(config.PROJECT_ROOT, config.DATA_DIR))
 
@@ -45,21 +44,11 @@ def attack(**kwargs):
 class SecurityEvaluations(Resource):
 
     def get(self):
-        with Connection(conn):
-            s = flask.request.json.get("status", None)
-            default_queue = Queue(name='sec-evals')
-            if s in status_handling_dict:
-                jobs = [default_queue.fetch_job(job_id) for job_id in status_handling_dict[s][0]()]
-            elif s is None:
-                jobs = [default_queue.fetch_job(job_id) for status in status_handling_dict for job_id in
-                        status_handling_dict[status][0]()]
-            else:
-                logging.log(level=logging.WARNING, msg="Invalid input.")
-                abort(400, "Filtering parameter not understood: status={}. "
-                           "Possible statuses are: {}.".format(s, ", ".join(status_handling_dict.keys())))
-                return
-            job_list = [{"id": j.id, "status": j.status} for j in jobs]
-        return job_list, 200, None
+
+        form = SecEvalForm()
+        # form.attack = ATTACK_CHOICES[form.pert_type]
+        return render_template('sec_eval_select.html', form=form)
+
 
     def post(self):
         args = flask.request.json
