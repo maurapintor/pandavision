@@ -2,29 +2,74 @@
 
 {% block content %}
 
-    <h1>Select Model and Image</h1>
+    <h1>Security Evaluation Configuration</h1>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-            <h4>
-                Model:
-            </h4>
-            <p>
-                {{ form.model }}
-            </p>
-            <h4>
-                Data:
-            </h4>
-            <p>
-                {{ form.data }}
-            </p>
-            <h4>
-                Perturbation model:
-            </h4>
-            <p>
-                {{ form.pert_type }}
-            </p>
-                    <h4>
+        <h4>
+            Model:
+        </h4>
+        <p>
+            {{ form.model }}
 
+            {{ form.addpreprocessing }}
+
+        <div id="preprInfo">
+            <br> mean {{ form.preprocess_mean_R}}{{ form.preprocess_mean_G}}{{ form.preprocess_mean_B}}
+            <br> std {{ form.preprocess_std_R }}{{ form.preprocess_std_G }}{{ form.preprocess_std_B }}
+        </div>
+
+        <h4>
+            Data:
+        </h4>
+        <p>
+            {{ form.dataset }}
+        </p>
+        <h4>
+            Perturbation model:
+        </h4>
+        <p>
+            {{ form.pert_type }}
+        </p>
+        <h4 id="attack_title">
+            Attack:
+        </h4>
+        <p>
+            {{ form.attack }}
+        </p>
         <button type="submit" class="btn btn-dark mb-2">Submit</button>
     </form>
+    <script>
+        let pert_type_select = document.getElementById('pert_type')
+        let attack_select = document.getElementById('attack')
+        let attack_title = document.getElementById('attack_title')
+        attack_select.style.visibility = 'hidden'
+        attack_title.style.visibility = 'hidden'
+        pert_type_select.onclick = function () {
+            pert_type = pert_type_select.value;
+            fetch('/attacks/' + pert_type).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+
+                    for (let attack of data.attacks) {
+                        optionHTML += '<option value="' + attack[1] + '">' + attack[0] + '</option>';
+                    }
+                    attack_select.style.visibility = 'visible'
+                    attack_title.style.visibility = 'visible'
+                    attack_select.innerHTML = optionHTML;
+                });
+            });
+        };
+
+        let add_preprocessing = document.getElementById('addpreprocessing')
+        let prepr_data = document.getElementById('preprInfo')
+        add_preprocessing.onchange = function () {
+            prepr = add_preprocessing.nodeValue;
+            if (prepr === "custom") {
+            prepr_data.style.visibility = 'visible';
+            }
+            else {
+            prepr_data.style.visibility = 'hidden';
+            }
+        }
+    </script>
 {% endblock %}

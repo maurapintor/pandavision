@@ -2,7 +2,7 @@ import logging
 import os
 
 import flask
-from flask import abort, render_template
+from flask import abort, render_template, make_response
 from flask_restful import Resource
 from rq import Connection
 from rq import Queue
@@ -46,8 +46,7 @@ class SecurityEvaluations(Resource):
     def get(self):
 
         form = SecEvalForm()
-        # form.attack = ATTACK_CHOICES[form.pert_type]
-        return render_template('sec_eval_select.html', form=form)
+        return make_response(render_template('sec_eval_select.html', form=form))
 
 
     def post(self):

@@ -12,8 +12,8 @@ from .dataset_loader import CustomDatasetLoader
 from .model_loader import ModelLoader
 
 ATTACK_CHOICES = {
-    'linf': [('PGD', 'pgd-linf'), ],
-    'l2': [('PGD', 'pgd-l2'), ('CW', 'cw')],
+    'linf': [('PGD', 'pgd-linf'), ('Random', 'noise-linf')],
+    'l2': [('PGD', 'pgd-l2'), ('CW', 'cw'), ('Random', 'noise-l2')],
 }
 
 
