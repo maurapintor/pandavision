@@ -1,13 +1,13 @@
 """This class is used whenever a security evaluation job is requested. It creates the security
 evaluation job starting from the parameters of the request."""
 import bisect
-import json
 import os
 from typing import List, Union
 
 import numpy as np
+import torch
 
-from .classification.attack_classification import AttackClassification
+from .classification.attack_classification import AttackClassification, SUPPORTED_ATTACKS
 from .dataset_loader import CustomDatasetLoader
 from .model_loader import ModelLoader
 
@@ -16,22 +16,20 @@ class EvaluationManager:
     def __init__(self, dataset_id: str,
                  model_id: str,
                  metric: str = None,
-                 perturbation_type: str = None,
+                 attack: str = None,
                  perturbation_values: List[Union[int, float]] = None,
                  evaluation_mode: str = 'complete',
                  task: str = 'classification',
                  indexes: List[int] = None,
-                 preprocessing: dict = None):
+                 preprocessing: dict = None,
+                 attack_params: dict = None):
         """Performs security evaluation for a given model and dataset.
 
         :param dataset_id: Path of the dataset.
         :param model_id: Path of the model.
         :param metric: Metric to use for the evaluation. Currently,
             only `classification-accuracy` is available as metric.
-        :param perturbation_type: Type of perturbation to add to the
-            input images. One of `max-norm` (Infinity-norm
-            perturbation-type, worst case, gradient-based),
-            `random` (Infinity-norm random perturbation).
+        :param attack: Algorithm to use for attacking the model.
         :param perturbation_values: List of integers containing the
             x-values for the security evaluation curve. For each point,
             a perturbation of type `perturbation-type` with constrained
@@ -70,7 +68,7 @@ class EvaluationManager:
         self._evaluation_mode = evaluation_mode
         if self._evaluation_mode == 'fast':
             if self._task == 'classification':
-                self._num_samples = 10
+                self._num_samples = 5
         else:
             self._num_samples = None
 
@@ -80,28 +78,30 @@ class EvaluationManager:
         if model_id is not None:
             self._load_model_by_id()
 
-        if perturbation_type in ["max-norm", "random"]:
-            self._perturbation_type = perturbation_type
+        if attack in SUPPORTED_ATTACKS:
+            self._attack_cls = attack
         else:
-            raise ValueError("Perturbation type {} not understood. "
-                             "It should be one of: 'max-norm', 'random'."
-                             "".format(perturbation_type))
+            raise ValueError(f"Attack type {attack} not understood. "
+                             f"It should be one of: {list(SUPPORTED_ATTACKS.keys())}.")
+
+        self._attack_params = attack_params if attack_params is not None else dict()
 
         self._metric = metric
-        if self._metric not in ['classification-accuracy', 'map', 'iou']:
+        if self._metric not in ['classification-accuracy']:
             raise ValueError("Evaluation metric {} not understood. "
-                             "It should be one of: 'classification-accuracy', 'map' ... ."
+                             "It should be one of: 'classification-accuracy' ... ."
                              "".format(self._metric))
 
         if self._task == 'classification' and self._metric != 'classification-accuracy':
             raise ValueError("Please, use 'classification-accuracy' as detection metric")
-
 
         if perturbation_values is not None:
             self._perturbation_values = perturbation_values
         else:
             # default value
             self._perturbation_values = [0, 0.01, 0.02, 0.03, 0.04, 0.05]
+
+        self.cached_adv_points = None
 
     def _load_dataset_by_id(self):
         # Dataset can be loaded from a local file path
@@ -140,13 +140,32 @@ class EvaluationManager:
                              "".format(self._perturbation_values))
 
         results = []
+        batch_size = self._validation_loader.batch_size
         for eps in self._perturbation_values:
             acc = []
-            for samples, labels in self._validation_loader:
-                if self._perturbation_type == 'max-norm':
-                    adv_points = self.attack.run(samples, labels, eps)
+            for batch_idx, (samples, labels) in enumerate(self._validation_loader):
+                if self.attack.is_min_distance(self._attack_cls):
+                    if self.cached_adv_points is None:
+                        self.cached_adv_points = torch.empty(size=(self._num_samples, *self.input_shape), dtype=samples.dtype)
+                        self._batch_is_cached = [False for _ in range(len(self._validation_loader))]
+                    if self._batch_is_cached[batch_idx] is False:
+                        adv_points = torch.from_numpy(
+                            self.attack.run(samples, labels, self._attack_cls, self._attack_params, eps))
+                        self.cached_adv_points[batch_idx*batch_size:
+                                               min((batch_idx+1)*batch_size, self._num_samples)] = \
+                            adv_points.detach()
+                        if eps > 0:
+                            self._batch_is_cached[batch_idx] = True
+                    else:
+                        adv_points = self.cached_adv_points[batch_idx*batch_size:
+                                               min((batch_idx+1)*batch_size, self._num_samples), ...].clone()
+                    not_adv = (adv_points - samples).view(adv_points.shape[0], -1).norm(
+                        dim=1, p=self.attack.attack_norm(self._attack_cls)) >= eps
+                    print ((adv_points - samples).view(adv_points.shape[0], -1).norm(
+                        dim=1, p=self.attack.attack_norm(self._attack_cls)))
+                    adv_points[not_adv, ...] = samples[not_adv, ...]
                 else:
-                    adv_points = self.attack.add_noise(samples, eps)
+                    adv_points = self.attack.run(samples, labels, self._attack_cls, self._attack_params, eps)
                 perf = self.attack.evaluate_perf(adv_points, labels)
                 acc.append(perf)
             avg_acc = np.array(acc).mean()
@@ -156,6 +175,7 @@ class EvaluationManager:
         return response
 
     def generate_advx(self, samples, labels, eps):
+        # TODO fix this function, apply new APIs
         self.prepare_attack()
         if self._perturbation_type == 'max-norm':
             adv_points = self.attack.run(samples, labels, eps)
@@ -179,5 +199,5 @@ class EvaluationManager:
                         "sec-value": sec_value.item(),
                         "sec-curve": {
                             "x-values": self._perturbation_values,
-                            "y-values": performances}}
+                            "y-values": performances.tolist()}}
         return eval_results

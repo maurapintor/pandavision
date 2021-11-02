@@ -28,7 +28,8 @@ status_handling_dict = {
 def attack(**kwargs):
     em = EvaluationManager(
         dataset_id=os.path.join(DATA_FOLDER, kwargs.get("dataset", None)),
-        perturbation_type=kwargs.get("perturbation-type", None),
+        attack=kwargs.get("attack", None),
+        attack_params=kwargs.get("attack-params", None),
         model_id=os.path.join(DATA_FOLDER, kwargs.get("trained-model", None)),
         metric=kwargs.get("performance-metric", "classification-accuracy"),
         perturbation_values=kwargs.get("perturbation-values", None),
