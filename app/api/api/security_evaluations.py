@@ -51,6 +51,40 @@ class SecurityEvaluations(Resource):
 
     def post(self):
         args = flask.request.json
+        if args is None:
+            form = SecEvalForm()
+            """
+            {'model': 'model.onnx', 'addpreprocessing': '{}', 
+            'preprocess_mean_R': None, 'preprocess_mean_G': None, 
+            'preprocess_mean_B': None, 'preprocess_std_R': None, 'preprocess_std_G': None, 
+            'preprocess_std_B': None, 'dataset': 'data.h5', 'pert_type': 'linf', 
+            """
+            model = form.data['model']
+            dataset = form.data['dataset']
+            preprocessing = {}  # TODO
+            attack_type = form.data['attack']
+            if attack_type in ['pgd-linf', 'pgd-l2']:
+                attack_params = form.pgd_form.data
+            elif attack_type in ['cw']:
+                attack_params = form.cw_form.data
+            else:
+                attack_params = {}
+            attack_params = {k: v for k, v in attack_params.items()
+                             if v is not None}
+            if 'csrf_token' in attack_params:
+                del attack_params['csrf_token']
+            evaluation_mode = 'fast'  # TODO
+            pert_values = [0, 0.1, 0.2]
+            args = {'trained-model': model,
+                    'dataset': dataset,
+                    'metric': 'classification-accuracy',
+                    'attack': attack_type,
+                    'attack-params': attack_params,
+                    'task': 'classification',
+                    'preprocessing': preprocessing,
+                    'evaluation-mode': evaluation_mode,
+                    'perturbation-values': pert_values,
+                    }
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
             try:
@@ -62,7 +96,7 @@ class SecurityEvaluations(Resource):
                 abort(422, "Unprocessable entry. The server understands the request "
                            "entity, but was unable to process the instructions.")
                 return
-        return job.get_id(), 202, {}
+        return make_response(render_template('sec_eval_output.html', jobID=job.get_id()))
 
     def delete(self):
         s = flask.request.json.get("status", None)

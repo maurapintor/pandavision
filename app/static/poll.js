@@ -17,7 +17,7 @@ function update(jobId) {
                 case "finished":
                     $('#spinner').hide();
                     $('#waitText').text("");
-                    makeGraph(data['data']);
+                    makeGraph(data['results']);
                     break;
                 case "started":
                     $('#waitText').text("Job started...");
@@ -33,6 +33,10 @@ function update(jobId) {
                         update(jobId);
                     }, 1000);
                     break;
+                case "failed":
+                    $('#waitText').text("Job Failed.");
+                    $('#spinner').hide();
+                    break
             }
 
         }
@@ -46,40 +50,53 @@ $(document).ready(function () {
     update(jobID);
 });
 
+const footer = (tooltipItems) => {
+    console.log("fofoooof")
+    let sum = 0;
+
+    tooltipItems.forEach(function (tooltipItem) {
+        sum += tooltipItem.parsed.y;
+    });
+    return 'Sum: ' + sum;
+};
+
 function makeGraph(results) {
     var ctx = document.getElementById("secEvalOutput").getContext('2d');
+    var data = {
+        labels: results['sec-curve']['x-values'],
+        datasets: [{
+            label: '',
+            data: results['sec-curve']['y-values'],
+            borderColor: 'rgba(0,117,70)',
+            backgroundColor: 'rgba(0,117,70,0.44)',
+        }]
+    }
     var myChart = new Chart(ctx, {
-        type: 'horizontalBar',
-        data: {
-            labels: [results[0][0], results[1][0], results[2][0], results[3][0], results[4][0]],
-            datasets: [{
-                label: 'Output scores',
-                data: [results[0][1], results[1][1], results[2][1], results[3][1], results[4][1]],
-                backgroundColor: [
-                    'rgba(26,74,4,0.8)',
-                    'rgba(117,0,20,0.8)',
-                    'rgba(121,87,3,0.8)',
-                    'rgba(6,33,108,0.8)',
-                    'rgba(63,3,85,0.8)',
-                ],
-                borderColor: [
-                    'rgba(26,74,4)',
-                    'rgba(117,0,20)',
-                    'rgba(121,87,3)',
-                    'rgba(6,33,108)',
-                    'rgba(63,3,85)',
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
+            type: 'line',
+            data: data,
+            options: {
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || '';
+
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += 'accuracy: ' + context.dataset.label ;
+                                }
+                                return label;
+                            }
+                        }
                     }
-                }]
+                }
             }
         }
-    });
+    );
 }

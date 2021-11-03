@@ -18,7 +18,7 @@ class AdversarialExamplesIdOutput(Resource):
             job = Job.fetch(id, connection=conn)
         except:
             logging.log(logging.INFO,
-                        "GET /api/adversarial_samples/{}/output failed. Job ID not found.".format(id))
+                        "GET /adversarial_samples/{}/output failed. Job ID not found.".format(id))
             abort(404, "Job ID not found.")
             return
 
@@ -42,18 +42,18 @@ class AdversarialExamplesIdOutput(Resource):
             job = Job.fetch(id, connection=conn)
         except:
             logging.log(logging.INFO,
-                        "DELETE /api/adversarial_samples/{}/output failed. Job ID not found.".format(id))
+                        "DELETE /adversarial_samples/{}/output failed. Job ID not found.".format(id))
             abort(404, "Job ID not found.")
             return
 
         if not job.is_finished:
             return "Temporary redirect. Job not finished yet.", 307, \
-                   {'Location': '/api/adversarial_samples/{}'.format(id)}
+                   {'Location': '/adversarial_samples/{}'.format(id)}
         try:
             job.cleanup(ttl=0)
         except:
             logging.log(logging.INFO,
-                        "DELETE /api/adversarial_samples/{}/output failed. Unable to process "
+                        "DELETE /adversarial_samples/{}/output failed. Unable to process "
                         "the job cleanup.".format(id))
             abort(422, "Unprocessable entry. The server understands the request "
                        "entity, but was unable to process the instructions.")

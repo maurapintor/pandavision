@@ -73,7 +73,7 @@ class EvaluationManager:
         self._evaluation_mode = evaluation_mode
         if self._evaluation_mode == 'fast':
             if self._task == 'classification':
-                self._num_samples = 5
+                self._num_samples = 3
         else:
             self._num_samples = None
 
@@ -141,7 +141,6 @@ class EvaluationManager:
 
     def sec_eval_curve(self):
         self.prepare_attack()
-
         if not isinstance(self._perturbation_values, list):
             raise ValueError("Perturbation values should "
                              "be a list of floats. Received {}"
@@ -171,8 +170,6 @@ class EvaluationManager:
                                      ...].clone()
                     not_adv = (adv_points - samples).view(adv_points.shape[0], -1).norm(
                         dim=1, p=self.attack.attack_norm(self._attack_cls)) >= eps
-                    print((adv_points - samples).view(adv_points.shape[0], -1).norm(
-                        dim=1, p=self.attack.attack_norm(self._attack_cls)))
                     adv_points[not_adv, ...] = samples[not_adv, ...]
                 else:
                     adv_points = self.attack.run(samples, labels, self._attack_cls, self._attack_params, eps)
