@@ -11,19 +11,22 @@
         <p>
             {{ form.model }}
 
-            {{ form.addpreprocessing }}
-
-        <div id="preprInfo">
-            <br> mean {{ form.preprocess_mean_R}}{{ form.preprocess_mean_G}}{{ form.preprocess_mean_B}}
-            <br> std {{ form.preprocess_std_R }}{{ form.preprocess_std_G }}{{ form.preprocess_std_B }}
-        </div>
 
         <h4>
             Data:
+
         </h4>
-        <p>
+        <div>
             {{ form.dataset }}
-        </p>
+            {{ form.addpreprocessing }}
+
+            <div id="preprInfo">
+                <div> mean</div>
+                <div>({{ form.preprocess_mean_R }},{{ form.preprocess_mean_G }},{{ form.preprocess_mean_B }})</div>
+                <div> std</div>
+                <div>({{ form.preprocess_std_R }},{{ form.preprocess_std_G }},{{ form.preprocess_std_B }})</div>
+            </div>
+        </div>
         <h4>
             Perturbation model:
         </h4>
@@ -36,40 +39,15 @@
         <p>
             {{ form.attack }}
         </p>
+
+        <p id="attack_params_title">Attack params:
+            {{ form.pgd_form }}
+            {{ form.cw_form }}
+
+        </p>
         <button type="submit" class="btn btn-dark mb-2">Submit</button>
     </form>
-    <script>
-        let pert_type_select = document.getElementById('pert_type')
-        let attack_select = document.getElementById('attack')
-        let attack_title = document.getElementById('attack_title')
-        attack_select.style.visibility = 'hidden'
-        attack_title.style.visibility = 'hidden'
-        pert_type_select.onclick = function () {
-            pert_type = pert_type_select.value;
-            fetch('/attacks/' + pert_type).then(function (response) {
-                response.json().then(function (data) {
-                    let optionHTML = '';
-
-                    for (let attack of data.attacks) {
-                        optionHTML += '<option value="' + attack[1] + '">' + attack[0] + '</option>';
-                    }
-                    attack_select.style.visibility = 'visible'
-                    attack_title.style.visibility = 'visible'
-                    attack_select.innerHTML = optionHTML;
-                });
-            });
-        };
-
-        let add_preprocessing = document.getElementById('addpreprocessing')
-        let prepr_data = document.getElementById('preprInfo')
-        add_preprocessing.onchange = function () {
-            prepr = add_preprocessing.nodeValue;
-            if (prepr === "custom") {
-            prepr_data.style.visibility = 'visible';
-            }
-            else {
-            prepr_data.style.visibility = 'hidden';
-            }
-        }
-    </script>
+    <script src="{{ url_for("static", filename="preprocessing_select.js") }}" id="preprocessing"></script>
+    <script src="{{ url_for("static", filename="attack_select.js") }}" id="attack"></script>
+    <script src="{{ url_for("static", filename="attack_params.js") }}" id="attack"></script>
 {% endblock %}
