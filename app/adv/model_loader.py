@@ -59,3 +59,4 @@ class ModelLoader:
                                          input_shape=self.input_shape,
                                          batch_size=1,
                                          preprocess=self._preprocessor)
+        print(self._model.preprocess)

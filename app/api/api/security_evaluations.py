@@ -8,7 +8,7 @@ from rq import Connection
 from rq import Queue
 from rq.registry import FinishedJobRegistry, StartedJobRegistry, DeferredJobRegistry
 
-from app.adv.evaluation_manager import EvaluationManager, ATTACK_CHOICES
+from app.adv.evaluation_manager import EvaluationManager
 from app.config import config
 from app.worker import conn
 from forms.sec_eval_form import SecEvalForm
@@ -22,7 +22,6 @@ status_handling_dict = {
     "failed": (lambda: Queue(name='sec-evals').get_job_ids(), lambda: Queue(name='failed').empty()),
     "deferred": (lambda: DeferredJobRegistry().get_job_ids(), lambda: DeferredJobRegistry().cleanup()),
 }
-
 
 def attack(**kwargs):
     em = EvaluationManager(
@@ -48,20 +47,31 @@ class SecurityEvaluations(Resource):
         form = SecEvalForm()
         return make_response(render_template('sec_eval_select.html', form=form))
 
-
     def post(self):
         args = flask.request.json
         if args is None:
             form = SecEvalForm()
-            """
-            {'model': 'model.onnx', 'addpreprocessing': '{}', 
-            'preprocess_mean_R': None, 'preprocess_mean_G': None, 
-            'preprocess_mean_B': None, 'preprocess_std_R': None, 'preprocess_std_G': None, 
-            'preprocess_std_B': None, 'dataset': 'data.h5', 'pert_type': 'linf', 
-            """
             model = form.data['model']
             dataset = form.data['dataset']
-            preprocessing = {}  # TODO
+            preprocessing = form.data['addpreprocessing']
+            if preprocessing == 'default':
+                preprocessing = None
+            elif preprocessing == 'none':
+                preprocessing = dict()
+            elif preprocessing == 'custom':
+                preprocessing = {
+                    'mean': (
+                        form.data['preprocess_mean_R'],
+                        form.data['preprocess_mean_G'],
+                        form.data['preprocess_mean_B'],
+                    ),
+                    'std': (
+                        form.data['preprocess_std_R'],
+                        form.data['preprocess_std_G'],
+                        form.data['preprocess_std_B'],
+                    )
+                }
+
             attack_type = form.data['attack']
             if attack_type in ['pgd-linf', 'pgd-l2']:
                 attack_params = form.pgd_form.data

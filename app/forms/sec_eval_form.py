@@ -20,8 +20,8 @@ class PGDForm(FlaskForm):
 
 class SecEvalForm(FlaskForm):
     model = FileField('model', validators=[DataRequired()])
-    addpreprocessing = RadioField("preprocessing", choices=[('None', 'no preprocessing'),
-                                                            ('{}', 'default preprocessing'),
+    addpreprocessing = RadioField("preprocessing", choices=[('none', 'no preprocessing'),
+                                                            ('default', 'default preprocessing'),
                                                             ('custom', 'custom')], default='{}', validators=[DataRequired()])
     eval_mode = RadioField("eval_mode", choices=[('fast', 'Fast'), ('complete', 'Complete')], default='fast',
                            validators=[DataRequired()])
