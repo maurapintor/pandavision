@@ -1,6 +1,6 @@
 import os
 
-from flask import request, redirect
+from flask import request, redirect, abort
 from flask_restful import Resource
 
 from app.config import config
@@ -31,4 +31,5 @@ class UploadFiles(Resource):
             file.save(os.path.join(DATA_FOLDER, data_type + '.' + DATA_TYPES[data_type]))
             return 200
         else:
-            return 400
+            abort(400)
+

@@ -5,50 +5,95 @@
     <h1>Security Evaluation Configuration</h1>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <h4>
-            Model:
-        </h4>
-        <p>
 
-        <div>
-            <input type="file" id="uploadmodel" onchange="checkModel();">
-            <div id="uploadmodelok" style="visibility: hidden">&#9989;</div>
-            <input type="file" id="uploaddata" onchange="checkData();">
-            <div id="uploaddataok" style="visibility: hidden">&#9989;</div>
+        <div class="row">
+            <div class="col">
+                <h4>
+                    Model:
+                </h4>
+            </div>
         </div>
-        <br>
-        {{ form.addpreprocessing }}
+        <div class="row">
+            <div class="col col-sm-3">
+                <input type="file" id="uploadmodel" onchange="checkModel();">
+            </div>
+            <div class="col">
+                <div id="uploadmodelok"></div>
+            </div>
+            <br>
+        </div>
 
-        <div id="preprInfo">
-            <div> mean</div>
-            <div>({{ form.preprocess_mean_R }},{{ form.preprocess_mean_G }},{{ form.preprocess_mean_B }})</div>
-            <div> std</div>
-            <div>({{ form.preprocess_std_R }},{{ form.preprocess_std_G }},{{ form.preprocess_std_B }})</div>
+        <div class="row">
+            <div class="col col-sm-3">
+                <input type="file" id="uploaddata" onchange="checkData();"></div>
+            <div class="col">
+                <div id="uploaddataok"></div>
+            </div>
         </div>
-        <div>
-            <h4>
-                Evaluation mode:
-            </h4>
-            <p>
-                {{ form.eval_mode }}
-            </p>
+
+        <div class="row">
+            <div class="col col-sm-3">
+                <br>
+                {{ form.addpreprocessing }}
+            </div>
         </div>
-        <h4>
-            Perturbation model:
-        </h4>
-        <p>
-            {{ form.pert_type }}
-        </p>
+        <div class="row">
+            <div class="col col">
+                <div id="preprInfo">
+                    <div> mean</div>
+                    <div>({{ form.preprocess_mean_R }},{{ form.preprocess_mean_G }},{{ form.preprocess_mean_B }})</div>
+                    <div> std</div>
+                    <div>({{ form.preprocess_std_R }},{{ form.preprocess_std_G }},{{ form.preprocess_std_B }})</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col col-sm-3">
+                <div>
+                    <h4>
+                        Evaluation mode:
+                    </h4>
+                    <p>
+                        {{ form.eval_mode }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col col-sm-3">
+                <h4>
+                    Perturbation model:
+                </h4>
+                <p>
+                    {{ form.pert_type }}
+                </p>
+            </div>
+        </div>
+
         <h4 id="attack_title">
             Attack:
         </h4>
-        <p>
-            {{ form.attack }}
-        <p id="attack_params_title">Attack params:
-            {{ form.pgd_form }}
-            {{ form.cw_form }}
-        </p>
-        <button type="submit" class="btn btn-dark mb-2">Submit</button>
+        <div class="row">
+            <div class="col col-sm-3">
+
+                {{ form.attack }}
+                <br>
+            </div>
+            <div class="col col-sm-3">
+                <p id="attack_params_title">Attack params:
+                    {{ form.pgd_form }}
+                    {{ form.cw_form }}
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col-sm-3">
+
+                <button type="submit" class="btn btn-dark mb-2">Submit</button>
+            </div>
+        </div>
     </form>
     <script src="{{ url_for("static", filename="preprocessing_select.js") }}" id="preprocessing"></script>
     <script src="{{ url_for("static", filename="attack_select.js") }}" id="attack"></script>
@@ -58,8 +103,15 @@
         function checkModel() {
             var form_model = new FormData();
             form_model.append('file', $('#uploadmodel').prop('files')[0]);
+            var uploadmodelok = $('#uploadmodelok');
             $(function () {
                 $.ajax({
+                    statusCode: {
+                        405: function () {
+                            uploadmodelok.html("");
+                        }
+                    },
+                    method: 'POST',
                     type: 'POST',
                     url: '/upload/model',
                     data: form_model,
@@ -67,10 +119,13 @@
                     cache: false,
                     processData: false,
                     success: function (data) {
-                        console.log('Success model!');
-                        $('#uploadmodelok').css('visibility', 'visible');
-
+                        uploadmodelok.html("&#9989;");
                     },
+                    error:
+                        function (data) {
+                            console.log('Failed model!');
+                            uploadmodelok.html("&#10060;");
+                        },
                 })
             });
         }
@@ -80,8 +135,14 @@
         function checkData() {
             var form_data = new FormData();
             form_data.append('file', $('#uploaddata').prop('files')[0]);
+            var uploaddataok = $('#uploaddataok');
             $(function () {
                 $.ajax({
+                    statusCode: {
+                        405: function () {
+                            uploaddataok.html("");
+                        }
+                    },
                     type: 'POST',
                     url: '/upload/data',
                     data: form_data,
@@ -90,8 +151,13 @@
                     processData: false,
                     success: function (data) {
                         console.log('Success data!');
-                        $('#uploaddataok').css('visibility', 'visible');
+                        uploaddataok.html("&#9989;");
                     },
+                    error:
+                        function (data) {
+                            console.log('Failed data!');
+                            uploaddataok.html("&#10060;");
+                        },
                 })
             });
         }
