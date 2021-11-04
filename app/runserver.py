@@ -2,7 +2,7 @@ from flask import Flask
 from optparse import OptionParser
 
 import api
-import config
+from app import config
 
 
 def create_app():

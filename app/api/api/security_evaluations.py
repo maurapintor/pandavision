@@ -13,7 +13,7 @@ from app.config import config
 from app.worker import conn
 from forms.sec_eval_form import SecEvalForm
 
-DATA_FOLDER = os.getenv('DATA_DIR', os.path.join(config.PROJECT_ROOT, config.DATA_DIR))
+DATA_FOLDER = os.path.join(config.PROJECT_ROOT, config.DATA_DIR)
 
 status_handling_dict = {
     "started": (lambda: StartedJobRegistry().get_job_ids(), lambda: 1),

@@ -8,6 +8,8 @@ web:
   environment:
     - REDIS_HOST=redisdb
     - REDIS_PORT=$REDIS_PORT
+  volumes:
+    - ./:/tmp
 
 redisdb:
   image: "redis"
@@ -20,7 +22,7 @@ worker:
   image: pandavision
   command: python -m app.worker
   volumes:
-    - ${DATA_DIR}:/appdata
+    - ./:/tmp
   links:
     - redisdb
   environment:
