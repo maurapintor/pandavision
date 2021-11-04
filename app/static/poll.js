@@ -68,7 +68,7 @@ function makeGraph(results) {
             data: data,
             options: {
                 layout: {
-                    padding: 30
+                    padding: 50
                 },
                 interaction: {
                     mode: 'index',
@@ -103,6 +103,12 @@ function makeGraph(results) {
                                 return title;
                             }
                         }
+                    }
+                },
+                scales: {
+                    y: {
+                        suggestedMin: 0,
+                        suggestedMax: 1.1
                     }
                 },
 

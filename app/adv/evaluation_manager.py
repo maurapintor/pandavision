@@ -202,6 +202,6 @@ class EvaluationManager:
         eval_results = {"sec-level": sec_level,
                         "sec-value": sec_value.item(),
                         "sec-curve": {
-                            "x-values": self._perturbation_values,
+                            "x-values": ["{:.3f}".format(v) for v in self._perturbation_values],
                             "y-values": performances.tolist()}}
         return eval_results

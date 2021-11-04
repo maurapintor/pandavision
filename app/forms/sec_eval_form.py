@@ -33,7 +33,8 @@ class SecEvalForm(FlaskForm):
     preprocess_std_B = FloatField()
     dataset = FileField('dataset', validators=[DataRequired()])
     pert_type = SelectField('perturbation_type', choices=[('linf', 'L-infinity'),
-                                                          ('l2', 'L2')], validators=[DataRequired()])
+                                                          ('l2', 'L2')], default='linf',
+                            validators=[DataRequired()])
     attack = SelectField('attack', choices=[])
 
     cw_form = FormField(CWForm)

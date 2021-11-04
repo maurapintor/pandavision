@@ -88,81 +88,17 @@
                 </p>
             </div>
         </div>
+        <br>
         <div class="row">
             <div class="col col-sm-3">
-
                 <button type="submit" class="btn btn-dark mb-2">Submit</button>
             </div>
         </div>
     </form>
+    <script src="{{ url_for("static", filename="uploads.js") }}" id="upload"></script>
     <script src="{{ url_for("static", filename="preprocessing_select.js") }}" id="preprocessing"></script>
     <script src="{{ url_for("static", filename="attack_select.js") }}" id="attack"></script>
-    <script src="{{ url_for("static", filename="attack_params.js") }}" id="attack"></script>
-    <script>
+    <script src="{{ url_for("static", filename="attack_params.js") }}" id="attack-params"></script>
 
-        function checkModel() {
-            var form_model = new FormData();
-            form_model.append('file', $('#uploadmodel').prop('files')[0]);
-            var uploadmodelok = $('#uploadmodelok');
-            $(function () {
-                $.ajax({
-                    statusCode: {
-                        405: function () {
-                            uploadmodelok.html("");
-                        }
-                    },
-                    method: 'POST',
-                    type: 'POST',
-                    url: '/upload/model',
-                    data: form_model,
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: function (data) {
-                        uploadmodelok.html("&#9989;");
-                    },
-                    error:
-                        function (data) {
-                            console.log('Failed model!');
-                            uploadmodelok.html("&#10060;");
-                        },
-                })
-            });
-        }
-
-        checkModel();
-
-        function checkData() {
-            var form_data = new FormData();
-            form_data.append('file', $('#uploaddata').prop('files')[0]);
-            var uploaddataok = $('#uploaddataok');
-            $(function () {
-                $.ajax({
-                    statusCode: {
-                        405: function () {
-                            uploaddataok.html("");
-                        }
-                    },
-                    type: 'POST',
-                    url: '/upload/data',
-                    data: form_data,
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: function (data) {
-                        console.log('Success data!');
-                        uploaddataok.html("&#9989;");
-                    },
-                    error:
-                        function (data) {
-                            console.log('Failed data!');
-                            uploaddataok.html("&#10060;");
-                        },
-                })
-            });
-        }
-
-        checkData();
-    </script>
 {% endblock %}
 

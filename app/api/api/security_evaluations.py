@@ -2,6 +2,7 @@ import logging
 import os
 
 import flask
+import numpy as np
 from flask import abort, render_template, make_response
 from flask_restful import Resource
 from rq import Connection
@@ -84,7 +85,8 @@ class SecurityEvaluations(Resource):
             if 'csrf_token' in attack_params:
                 del attack_params['csrf_token']
             evaluation_mode = form.data['eval_mode']
-            pert_values = [0, 0.1, 0.2]
+            stop_value = 16/255 if form.data['pert_type'] else 0.5
+            pert_values = np.linspace(start=0, stop=stop_value, num=4).tolist()
             args = {'trained-model': model,
                     'dataset': dataset,
                     'metric': 'classification-accuracy',
