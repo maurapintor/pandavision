@@ -6,7 +6,6 @@ from secml.ml.classifiers import CClassifierPyTorch
 from secml.ml.features import CNormalizerMeanStd
 from .pytorch_importer import TorchONNXLoader
 
-SHARED_DATA_FOLDER = os.getenv('SHARED_DATA_FOLDER', 'data')
 DEFAULT_PREPROCESSING_MEAN = (0.485, 0.456, 0.406,)
 DEFAULT_PREPROCESSING_STD = (0.229, 0.224, 0.225,)
 

@@ -1,21 +1,16 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from flask import Flask
 from optparse import OptionParser
 
 import api
+from app import config
 
 
 def create_app():
     app = Flask(__name__, static_folder='static')
     app.register_blueprint(
         api.bp,
-        url_prefix='/api')
-
-    @app.route('/')
-    def home():
-        return 200
+        url_prefix='')
+    app.config['SECRET_KEY'] = config.SECRET_KEY
 
     return app
 

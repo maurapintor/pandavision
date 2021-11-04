@@ -64,8 +64,7 @@ Once set up, Docker Compose will automatically take care of the setup process.
 Just type the following commands in your shell, from the `app` path:
 
 ```bash
-docker-compose build
-docker-compose up
+docker build . -t pandavision && docker-compose build && docker-compose up
 ```
 
 If you want to use more workers, the following command should be used(replace 

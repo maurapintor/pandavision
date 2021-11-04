@@ -28,6 +28,10 @@ class H5Dataset(TorchDataset):
         y_data = self._file['labels'][:]
         self._labels = y_data
 
+        if num_samples is not None:
+            self._samples, self._labels = \
+                self._samples[:num_samples, ...], self._labels[:num_samples, ...]
+
         self.classes = np.unique(self._labels)
         self._file.close()
 
