@@ -22,7 +22,7 @@ class SecEvalForm(FlaskForm):
     model = FileField('model', validators=[DataRequired()])
     addpreprocessing = RadioField("preprocessing", choices=[('none', 'no preprocessing'),
                                                             ('default', 'default preprocessing'),
-                                                            ('custom', 'custom')], default='{}', validators=[DataRequired()])
+                                                            ('custom', 'custom')], default='default', validators=[DataRequired()])
     eval_mode = RadioField("eval_mode", choices=[('fast', 'Fast'), ('complete', 'Complete')], default='fast',
                            validators=[DataRequired()])
     preprocess_mean_R = FloatField()
