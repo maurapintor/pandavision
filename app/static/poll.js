@@ -66,37 +66,57 @@ function makeGraph(results) {
         labels: results['sec-curve']['x-values'],
         datasets: [{
             label: '',
+            fill: true,
             data: results['sec-curve']['y-values'],
-            borderColor: 'rgba(0,117,70)',
-            backgroundColor: 'rgba(0,117,70,0.44)',
+            borderColor: 'rgb(0,117,86)',
+            backgroundColor: 'rgba(0,117,70,0.25)',
+            tension: 0.3,
         }]
     }
     var myChart = new Chart(ctx, {
             type: 'line',
             data: data,
             options: {
+                layout: {
+                    padding: 30
+                },
                 interaction: {
                     mode: 'index',
                     intersect: false,
                 },
+
                 plugins: {
+                    legend: {
+                        display: false,
+                    },
                     tooltip: {
+                        displayColors: false,
                         callbacks: {
                             label: function (context) {
                                 let label = context.dataset.label || '';
-
                                 if (label) {
                                     label += ': ';
                                 }
                                 if (context.parsed.y !== null) {
-                                    label += 'accuracy: ' + context.dataset.label ;
+                                    label += 'accuracy: ' + (context.parsed.y * 100).toFixed(2) + ' %';
                                 }
                                 return label;
+                            },
+                            title: function (context) {
+                                let title = context.title || '';
+                                if (title) {
+                                    title += ': ';
+                                }
+                                if (context.title !== null) {
+                                    title += 'epsilon = ' + (context[0].label);
+                                }
+                                return title;
                             }
                         }
                     }
-                }
-            }
+                },
+
+            },
         }
     );
 }
