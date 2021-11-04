@@ -26,10 +26,10 @@ status_handling_dict = {
 
 def attack(**kwargs):
     em = EvaluationManager(
-        dataset_id=os.path.join(DATA_FOLDER, kwargs.get("dataset", None)),
+        dataset_id=os.path.join(DATA_FOLDER, 'data.h5'),
         attack=kwargs.get("attack", None),
         attack_params=kwargs.get("attack-params", None),
-        model_id=os.path.join(DATA_FOLDER, kwargs.get("trained-model", None)),
+        model_id=os.path.join(DATA_FOLDER, 'model.onnx'),
         metric=kwargs.get("performance-metric", "classification-accuracy"),
         perturbation_values=kwargs.get("perturbation-values", None),
         evaluation_mode=kwargs.get("evaluation-mode", "complete"),
@@ -73,7 +73,7 @@ class SecurityEvaluations(Resource):
                              if v is not None}
             if 'csrf_token' in attack_params:
                 del attack_params['csrf_token']
-            evaluation_mode = 'fast'  # TODO
+            evaluation_mode = form.data['eval_mode']
             pert_values = [0, 0.1, 0.2]
             args = {'trained-model': model,
                     'dataset': dataset,

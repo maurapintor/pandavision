@@ -12,7 +12,6 @@ function update(jobId) {
     $.ajax({
         url: `/security_evaluations/${jobId}`,
         success: function (data) {
-            console.log(data)
             switch (data['task_status']) {
                 case "finished":
                     $('#spinner').hide();
@@ -50,15 +49,6 @@ $(document).ready(function () {
     update(jobID);
 });
 
-const footer = (tooltipItems) => {
-    console.log("fofoooof")
-    let sum = 0;
-
-    tooltipItems.forEach(function (tooltipItem) {
-        sum += tooltipItem.parsed.y;
-    });
-    return 'Sum: ' + sum;
-};
 
 function makeGraph(results) {
     var ctx = document.getElementById("secEvalOutput").getContext('2d');

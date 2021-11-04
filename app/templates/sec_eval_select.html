@@ -9,23 +9,21 @@
             Model:
         </h4>
         <p>
-            {{ form.model }}
 
-
-        <h4>
-            Data:
-
-        </h4>
         <div>
-            {{ form.dataset }}
-            {{ form.addpreprocessing }}
+            <input type="file" id="uploadmodel" onchange="checkModel();">
+            <div id="uploadmodelok" style="visibility: hidden">&#9989;</div>
+            <input type="file" id="uploaddata" onchange="checkData();">
+            <div id="uploaddataok" style="visibility: hidden">&#9989;</div>
+        </div>
+        <br>
+        {{ form.addpreprocessing }}
 
-            <div id="preprInfo">
-                <div> mean</div>
-                <div>({{ form.preprocess_mean_R }},{{ form.preprocess_mean_G }},{{ form.preprocess_mean_B }})</div>
-                <div> std</div>
-                <div>({{ form.preprocess_std_R }},{{ form.preprocess_std_G }},{{ form.preprocess_std_B }})</div>
-            </div>
+        <div id="preprInfo">
+            <div> mean</div>
+            <div>({{ form.preprocess_mean_R }},{{ form.preprocess_mean_G }},{{ form.preprocess_mean_B }})</div>
+            <div> std</div>
+            <div>({{ form.preprocess_std_R }},{{ form.preprocess_std_G }},{{ form.preprocess_std_B }})</div>
         </div>
         <div>
             <h4>
@@ -33,7 +31,6 @@
             </h4>
             <p>
                 {{ form.eval_mode }}
-
             </p>
         </div>
         <h4>
@@ -47,17 +44,59 @@
         </h4>
         <p>
             {{ form.attack }}
-        </p>
-
         <p id="attack_params_title">Attack params:
             {{ form.pgd_form }}
             {{ form.cw_form }}
-
         </p>
         <button type="submit" class="btn btn-dark mb-2">Submit</button>
     </form>
     <script src="{{ url_for("static", filename="preprocessing_select.js") }}" id="preprocessing"></script>
     <script src="{{ url_for("static", filename="attack_select.js") }}" id="attack"></script>
     <script src="{{ url_for("static", filename="attack_params.js") }}" id="attack"></script>
+    <script>
+
+        function checkModel() {
+            var form_model = new FormData();
+            form_model.append('file', $('#uploadmodel').prop('files')[0]);
+            $(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/upload/model',
+                    data: form_model,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (data) {
+                        console.log('Success model!');
+                        $('#uploadmodelok').css('visibility', 'visible');
+
+                    },
+                })
+            });
+        }
+
+        checkModel();
+
+        function checkData() {
+            var form_data = new FormData();
+            form_data.append('file', $('#uploaddata').prop('files')[0]);
+            $(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '/upload/data',
+                    data: form_data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function (data) {
+                        console.log('Success data!');
+                        $('#uploaddataok').css('visibility', 'visible');
+                    },
+                })
+            });
+        }
+
+        checkData();
+    </script>
 {% endblock %}
 

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from .api.home import Home
 from .api.security_evaluations import SecurityEvaluations
 from .api.security_evaluations_id import SecurityEvaluationsId
@@ -8,9 +6,11 @@ from .api.adversarial_examples import AdversarialExamples
 from .api.adversarial_examples_id import AdversarialExamplesId
 from .api.adversarial_examples_id_output import AdversarialExamplesIdOutput
 from .api.attacks_list import AttackList, Attacks
+from .api.upload_file import UploadFiles
 
 routes = [
     dict(resource=Home, urls=['/', '/home'], endpoint='home'),
+    dict(resource=UploadFiles, urls=['/upload/<data_type>'], endpoint='upload_data_type'),
     dict(resource=SecurityEvaluations, urls=['/security_evaluations'], endpoint='security_evaluations'),
     dict(resource=SecurityEvaluationsId, urls=['/security_evaluations/<id>'], endpoint='security_evaluations_id'),
     dict(resource=SecurityEvaluationsIdOutput, urls=['/security_evaluations/<id>/output'], endpoint='security_evaluations_id_output'),
