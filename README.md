@@ -80,10 +80,10 @@ docker-compose up --scale worker=2
 ### Quick start
 
 For a demo example, you can download a 
-[sample containing few images of the imagenet dataset](https://github.com/maurapintor/pandavision/releases/download/v0.1/data.h5)
-and a [resnet50-pretrained model from the onnx zoo](https://github.com/maurapintor/pandavision/releases/download/v0.1/model.onnx).
+[sample containing few images of the imagenet dataset](https://github.com/maurapintor/pandavision/releases/download/v0.2/data.h5)
+and a [resnet50-pretrained model from the onnx zoo](https://github.com/maurapintor/pandavision/releases/download/v0.2/model.onnx).
 
-And you can place the data in a directory called `appdata`, in the main root of the repository.
+Download the files and place them in a known directory.
 
 ### Supported models
 
@@ -106,6 +106,21 @@ such as resize, reshape, rotation and normalization should be applied in this st
 An example, that creates a subset of the imagenet dataset, can be found in [this gist](https://gist.github.com/maurapintor/25a6d80f9f86d36f72a4b2cc8540008f).
 
 ### How to start a security evaluation job
+
+#### The easy way
+You can access the APIs through the web interface by connecting at 
+[http://localhost:8080](http://localhost:8080). You will be prompted to 
+the home page of the service. Click then on the "Try it out!" button, and 
+you will see a form to configure the security evaluation. Upload the 
+model and the dataset of choice, then select the paramters. Finally,
+click "Submit", and wait for the evaluation to finish. As soon as the 
+worker finishes processing the data, you will see the security 
+evaluation curve on the interface.
+
+**Coming soon** :arrow_left: download data in `csv` format.
+
+#### The nerdy way
+
 A security evaluation job can be enqueued with a `POST` request to `/api/security_evaluations`. 
 The API returns the **job unique ID** that can be used to access **job status** and **results**. 
 Running workers will wait for new jobs in the queue and consume them with a FIFO rule.
@@ -140,12 +155,12 @@ The API can also be tested with Postman (it is configured already to get the ID 
 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://god.gw.postman.com/run-collection/1276122-97709dd2-5b99-4737-ae94-2c9868b776f4?action=collection%2Ffork&collection-url=entityId%3D1276122-97709dd2-5b99-4737-ae94-2c9868b776f4%26entityType%3Dcollection%26workspaceId%3D9c875dc5-2201-4035-a06d-6567bd8a75e6)
 
-### Job status API
+##### Job status API
 Job status can be retrieved by sending a `GET` request to `/api/security_evaluations/{id}`, where the 
 id of the job should be replaced with the job ID of the previous point. A `GET` to `/api/security_evaluations` 
 will return the status of all jobs found in the queues and in the finished job registries. 
 
-### Job results API
+##### Job results API
 Job results can be retrieved, once the job has entered the `finished` state, with a `GET` request 
 to `/api/security_evaluations/{id}/output`. A request to this path with a job ID that is not yet 
 in the `finished` status will redirect to the job status API.
