@@ -10,3 +10,4 @@ jsonschema
 matplotlib
 h5py
 python-dotenv
+flask-wtf

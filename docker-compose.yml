@@ -1,31 +1,34 @@
-web:
-  image: pandavision
-  command: python -m app.runserver
-  ports:
-    - "8080:8080"
-  links:
-    - redisdb
-  environment:
-    - REDIS_HOST=redisdb
-    - REDIS_PORT=$REDIS_PORT
+services:
+  web:
+    image: pandavision
+    command: python -m app.runserver
+    ports:
+      - "8080:8080"
+    links:
+      - redisdb
+    environment:
+      - REDIS_HOST=redisdb
+      - REDIS_PORT=$REDIS_PORT
+    volumes:
+      - ./:/tmp
 
-redisdb:
-  image: "redis"
-  command: --port ${REDIS_PORT}
-  ports:
-    - ${REDIS_PORT}:${REDIS_PORT}
+  redisdb:
+    image: "redis"
+    command: --port ${REDIS_PORT}
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
 
 
-worker:
-  image: pandavision
-  command: python -m app.worker
-  volumes:
-    - ${DATA_DIR}:/appdata
-  links:
-    - redisdb
-  environment:
-    - REDIS_HOST=redisdb
-    - REDIS_PORT=$REDIS_PORT
+  worker:
+    image: pandavision
+    command: python -m app.worker
+    volumes:
+      - ./:/tmp
+    links:
+      - redisdb
+    environment:
+      - REDIS_HOST=redisdb
+      - REDIS_PORT=$REDIS_PORT
 
 
 

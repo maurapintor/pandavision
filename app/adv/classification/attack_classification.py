@@ -1,12 +1,26 @@
 import os
 
 import numpy as np
-from secml.adv.attacks.evasion import CFoolboxPGDLinf
+from foolbox.attacks import (
+    L2AdditiveUniformNoiseAttack, LinfAdditiveUniformNoiseAttack)
+from secml.adv.attacks.evasion import (
+    CFoolboxPGDLinf, CFoolboxPGDL2, CFoolboxPGDL1,
+    CFoolboxL2CarliniWagner, CAttackEvasionFoolbox)
 from secml.array import CArray
 from secml.data import CDataset
 from secml.ml.peval.metrics import CMetricAccuracy
 
 from adv.attack_base import AttackBase
+
+# attack cls, is min-distance, is secml-class, attack-norm
+SUPPORTED_ATTACKS = {
+    'pgd-linf': (CFoolboxPGDLinf, False, True, np.inf),
+    'pgd-l2': (CFoolboxPGDL2, False, True, 2),
+    'pgd-l1': (CFoolboxPGDL1, False, True, 1),
+    'cw': (CFoolboxL2CarliniWagner, True, True, 2),
+    'noise-linf': (LinfAdditiveUniformNoiseAttack, False, False, np.inf),
+    'noise-l2': (L2AdditiveUniformNoiseAttack, False, False, 2),
+}
 
 
 class AttackClassification(AttackBase):
@@ -14,32 +28,40 @@ class AttackClassification(AttackBase):
         self.classes = range(1000)
         super(AttackClassification, self).__init__(model, lb, ub)
 
-    def run(self, x, y, eps):
+    def run(self, x, y, attack, attack_params, eps):
         if eps == 0:
-            return x
-        self.prepare_attack(x, eps)
+            return x.numpy()
+        self.prepare_attack(attack, attack_params, eps)
         x, y = x.numpy().astype(np.float64), y.numpy()
         orig_shape = x.shape
         data = CArray(x.reshape(x.shape[0], -1))
         labels = CArray(y)
         ts = CDataset(data, labels)
 
-        y_pred, _, adv_ds, _ = self.attack.run(ts.X, ts.Y)
+        preds, _, adv_ds, _ = self.attack.run(ts.X, ts.Y)
+
         adv_samples = adv_ds.X.tondarray().reshape(orig_shape)
 
         return adv_samples
 
-    def prepare_attack(self, x, eps):
-        max_ = x.max()
-        min_ = x.min()
-        data_range = max_ - min_
-        attack_params = {'epsilons': eps * data_range.item(),
-                         'lb': min_,
-                         'ub': max_}
-        self.attack = CFoolboxPGDLinf(
-            classifier=self.model,
-            y_target=None,
-            **attack_params)
+    def prepare_attack(self, attack, attack_params, eps):
+        attack_params.update({
+            'lb': self.lb,
+            'ub': self.ub})
+        attack_cls, is_min_distance, \
+        self.is_secml_class, attack_norm = SUPPORTED_ATTACKS[attack]
+        if is_min_distance is False:
+            attack_params.update({'epsilons': eps})
+        if self.is_secml_class:
+            self.attack = attack_cls(
+                classifier=self.model,
+                y_target=None,
+                **attack_params)
+        else:
+            self.attack = CAttackEvasionFoolbox(classifier=self.model,
+                                                y_target=None,
+                                                fb_attack_class=attack_cls,
+                                                **attack_params)
 
     def evaluate_perf(self, x, labels):
         metric = CMetricAccuracy()
@@ -99,3 +121,9 @@ class AttackClassification(AttackBase):
         plt.savefig(os.path.join(figure_path, "{}.pdf").format(figure_name), format='pdf')
         plt.savefig(os.path.join(figure_path, "{}.png").format(figure_name), format='png')
         plt.close()
+
+    def is_min_distance(self, attack):
+        return SUPPORTED_ATTACKS[attack][1]
+
+    def attack_norm(self, attack):
+        return SUPPORTED_ATTACKS[attack][3]

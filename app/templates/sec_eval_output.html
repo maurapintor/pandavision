@@ -1,0 +1,34 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <style>
+        .large-front-thumbnail {
+            position: relative;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+
+    </style>
+    <div class="row">
+        <div class="col">
+            <h1>Security Evaluation Results</h1>
+            <div class="card">
+                <div class="row">
+                    <canvas id="secEvalOutput"></canvas>
+                    <div class="align-items-center">
+                        <h2 id="waitText"></h2>
+                        <div class="m-5 spinner spinner-border mr-auto spinner-grow text-dark row" id="spinner">
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for("static", filename="poll.js") }}" id="polling" jobid={{ jobID }}></script>
+{% endblock %}
