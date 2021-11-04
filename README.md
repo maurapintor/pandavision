@@ -120,7 +120,7 @@ evaluation curve on the interface.
 
 #### The nerdy way
 
-A security evaluation job can be enqueued with a `POST` request to `/api/security_evaluations`. 
+A security evaluation job can be enqueued with a `POST` request to `/security_evaluations`. 
 The API returns the **job unique ID** that can be used to access **job status** and **results**. 
 Running workers will wait for new jobs in the queue and consume them with a FIFO rule.
 
@@ -155,13 +155,13 @@ The API can also be tested with Postman (it is configured already to get the ID 
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://god.gw.postman.com/run-collection/1276122-97709dd2-5b99-4737-ae94-2c9868b776f4?action=collection%2Ffork&collection-url=entityId%3D1276122-97709dd2-5b99-4737-ae94-2c9868b776f4%26entityType%3Dcollection%26workspaceId%3D9c875dc5-2201-4035-a06d-6567bd8a75e6)
 
 ##### Job status API
-Job status can be retrieved by sending a `GET` request to `/api/security_evaluations/{id}`, where the 
-id of the job should be replaced with the job ID of the previous point. A `GET` to `/api/security_evaluations` 
+Job status can be retrieved by sending a `GET` request to `/security_evaluations/{id}`, where the 
+id of the job should be replaced with the job ID of the previous point. A `GET` to `/security_evaluations` 
 will return the status of all jobs found in the queues and in the finished job registries. 
 
 ##### Job results API
 Job results can be retrieved, once the job has entered the `finished` state, with a `GET` request 
-to `/api/security_evaluations/{id}/output`. A request to this path with a job ID that is not yet 
+to `/security_evaluations/{id}/output`. A request to this path with a job ID that is not yet 
 in the `finished` status will redirect to the job status API.
 
 ## Contributing
