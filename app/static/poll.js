@@ -115,6 +115,7 @@ function makeGraph(results) {
             },
         }
     );
-    $('#accText').style.visibility = 'visible';
+    $('#accText').css("visibility",'visible');
+    $('#pertSizeText').css("visibility",'visible');
 }
 
