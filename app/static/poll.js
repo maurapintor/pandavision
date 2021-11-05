@@ -108,7 +108,9 @@ function makeGraph(results) {
                 scales: {
                     y: {
                         suggestedMin: 0,
-                        suggestedMax: 1.1
+                        suggestedMax: 1.1,
+                    },
+                    x: {
                     }
                 },
 
