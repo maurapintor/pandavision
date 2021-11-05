@@ -118,7 +118,7 @@ evaluation curve on the interface.
 
 You can follow this video tutorial for configuring the security evaluation:
 
-[![Demo Video](https://img.youtube.com/vi/SiP886Np-nc/0.jpg)](https://www.youtube.com/watch?v=SiP886Np-nc)
+[![Demo PandaVision](https://user-images.githubusercontent.com/23276849/140490341-7f61c975-ef7a-4169-8900-e1e2ee2a7df3.gif)](https://www.youtube.com/watch?v=SiP886Np-nc)
 
 
 **Coming soon** :arrow_left: download data in `csv` format.
