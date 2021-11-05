@@ -110,11 +110,11 @@ function makeGraph(results) {
                         suggestedMin: 0,
                         suggestedMax: 1.1,
                     },
-                    x: {
-                    }
                 },
 
             },
         }
     );
+    $('#accText').style.visibility = 'visible';
 }
+

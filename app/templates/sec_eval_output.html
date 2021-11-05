@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 
 {% block content %}
@@ -13,15 +12,30 @@
 
 
     </style>
-    <div class="row">
-        <div class="col">
-            <h1>Security Evaluation Results</h1>
-            <div class="card">
-                <div class="row">
-                    <canvas id="secEvalOutput"></canvas>
-                    <div class="align-items-center">
-                        <h2 id="waitText"></h2>
-                        <div class="m-5 spinner spinner-border mr-auto spinner-grow text-dark row" id="spinner">
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Security Evaluation Results</h1>
+                <div class="card">
+                    <div class="row">
+                        <div class="col-1" style="justify-content: center; align-items: center;display: flex;">
+                            <h4 id="accText" style="writing-mode: vertical-rl; text-orientation: mixed;
+                            text-align: center; vertical-align: center; visibility: hidden;">Accuracy</h4>
+                        </div>
+                        <div class="col">
+                            <canvas id="secEvalOutput"></canvas>
+                            <div class="align-items-center">
+                                <h2 id="waitText"></h2>
+                                <div class="m-5 spinner spinner-border mr-auto spinner-grow text-dark row" id="spinner">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-1">
+                        </div>
+                        <div class="col">
+                            <h4 id="pertSizeText" style="text-align: center; visibility: hidden;">Perturbation Size</h4>
                         </div>
                     </div>
                 </div>
