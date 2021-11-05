@@ -121,7 +121,7 @@ You can follow this video tutorial (click for YouTube video) for configuring the
 [![Demo PandaVision](https://user-images.githubusercontent.com/23276849/140490341-7f61c975-ef7a-4169-8900-e1e2ee2a7df3.gif)](https://www.youtube.com/watch?v=SiP886Np-nc)
 
 
-**Coming soon** :arrow_left: download data in `csv` format.
+**Coming soon** :arrow_right: download data in `csv` format.
 
 #### The nerdy way
 
