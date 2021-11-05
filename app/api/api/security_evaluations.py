@@ -85,7 +85,7 @@ class SecurityEvaluations(Resource):
             if 'csrf_token' in attack_params:
                 del attack_params['csrf_token']
             evaluation_mode = form.data['eval_mode']
-            stop_value = 16/255 if form.data['pert_type'] else 0.5
+            stop_value = 4/255 if form.data['pert_type'] == 'linf' else 0.2
             pert_values = np.linspace(start=0, stop=stop_value, num=4).tolist()
             args = {'trained-model': model,
                     'dataset': dataset,
