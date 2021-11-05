@@ -34,13 +34,13 @@ to process the long-running tasks, so we need to start the workers along with th
 Run the following commands from the `app` folder:
 
 ```bash
-python3 worker.py
+python app/worker.py
 ```
 
 Now open another shell and run the server:
 
 ```bash
-python3 app/runserver.py
+python app/runserver.py
 ```
 
 ### Starting the server with docker
