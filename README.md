@@ -118,7 +118,7 @@ evaluation curve on the interface.
 
 You can follow this video tutorial for configuring the security evaluation:
 
-<video src='https://www.youtube.com/watch?v=SiP886Np-nc' width=180/>
+[![Demo Video](https://img.youtube.com/vi/SiP886Np-nc/0.jpg)](https://www.youtube.com/watch?v=SiP886Np-nc)
 
 
 **Coming soon** :arrow_left: download data in `csv` format.
