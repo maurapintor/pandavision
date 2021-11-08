@@ -118,10 +118,10 @@ evaluation curve on the interface.
 
 You can follow this video tutorial (click for YouTube video) for configuring the security evaluation:
 
-[![Demo PandaVision](https://user-images.githubusercontent.com/23276849/140490341-7f61c975-ef7a-4169-8900-e1e2ee2a7df3.gif)](https://www.youtube.com/watch?v=SiP886Np-nc)
+[![Demo PandaVision](https://user-images.githubusercontent.com/23276849/140725346-f9dde370-2732-465b-aca9-8a4e5a923f44.gif)](https://www.youtube.com/watch?v=SiP886Np-nc)
 
 
-**Coming soon** :arrow_right: download data in `csv` format.
+You can also download the data in `csv` format, by pressing the button that appears below the plot.
 
 #### The nerdy way
 
