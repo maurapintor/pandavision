@@ -1,7 +1,7 @@
 import csv
 import logging
 from io import StringIO
-
+import pandas as pd
 from flask import abort, Response
 from flask_restful import Resource
 from rq.job import Job
@@ -24,12 +24,9 @@ class SecurityEvaluationsIdOutputCsv(Resource):
         # todo but the result ttl has expired
         if job.is_finished:
             result = job.result
-            f = StringIO()
-            w = csv.writer(f)
             x, y = result['sec-curve']['x-values'], result['sec-curve']['y-values']
-            for xi, yi in zip(x, y):
-                w.writerow([xi, yi])
-            return Response(f.getvalue(), mimetype='text/csv',
+            result_df = pd.DataFrame(data={'pert_value': x, 'accuracy': y})
+            return Response(result_df.to_csv(), mimetype='text/csv',
                             headers={"Content-disposition":
                                          "attachment; filename=sec_eval_results.csv"})
         else:
