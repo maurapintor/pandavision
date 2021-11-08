@@ -118,5 +118,5 @@ function makeGraph(results) {
     );
     $('#accText').css("visibility",'visible');
     $('#pertSizeText').css("visibility",'visible');
+    $('#downloadButton').css("visibility",'visible');
 }
-
