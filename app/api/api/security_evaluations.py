@@ -43,6 +43,7 @@ def attack(**kwargs):
 
 
 def fake_attack(**kwargs):
+    # DO NOT USE -- used for testing frontend
     eval_results = {"sec-level": "low",
                     "sec-value": 0.4,
                     "sec-curve": {
@@ -110,7 +111,7 @@ class SecurityEvaluations(Resource):
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
             try:
-                job = q.enqueue_call(func=fake_attack, result_ttl=int(config.RESULT_TTL), timeout=int(config.JOB_TIMEOUT),
+                job = q.enqueue_call(func=attack, result_ttl=int(config.RESULT_TTL), timeout=int(config.JOB_TIMEOUT),
                                      kwargs=args)
             except Exception as e:
                 print(str(e))
