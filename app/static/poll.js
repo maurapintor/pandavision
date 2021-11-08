@@ -49,6 +49,7 @@ $(document).ready(function () {
     update(jobID);
 });
 
+const zip = (a, b) => a.map((k, i) => [k, b[i]]);
 
 function makeGraph(results) {
     var ctx = document.getElementById("secEvalOutput").getContext('2d');
@@ -57,14 +58,14 @@ function makeGraph(results) {
         datasets: [{
             label: '',
             fill: true,
-            data: results['sec-curve']['y-values'],
-            borderColor: 'rgb(0,117,86)',
-            backgroundColor: 'rgba(0,117,70,0.25)',
+            data: zip(results['sec-curve']['x-values'], results['sec-curve']['y-values']),
+            borderColor: 'rgb( 35, 128, 126)',
+            backgroundColor: 'rgba(35,128,126,0.73)',
             tension: 0.3,
         }]
     }
     var myChart = new Chart(ctx, {
-            type: 'line',
+            type: 'scatter',
             data: data,
             options: {
                 layout: {
@@ -117,5 +118,5 @@ function makeGraph(results) {
     );
     $('#accText').css("visibility",'visible');
     $('#pertSizeText').css("visibility",'visible');
+    $('#downloadButton').css("visibility",'visible');
 }
-

@@ -1,17 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <style>
-        .large-front-thumbnail {
-            position: relative;
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
 
-
-    </style>
     <div class="container">
         <div class="row">
             <div class="col">
@@ -38,9 +28,16 @@
                             <h4 id="pertSizeText" style="text-align: center; visibility: hidden;">Perturbation Size</h4>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-1">
+                        </div>
+                        <div class="col" style="text-align: center;">
+                            <a id="downloadButton" style="visibility: hidden; margin:20px;" class="btn btn-dark"
+                               href="/security_evaluations/{{ jobID }}/output/csv">
+                                Download as CSV</a>
+                        </div>
+                    </div>
                 </div>
-
-
             </div>
         </div>
     </div>

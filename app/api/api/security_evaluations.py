@@ -24,6 +24,7 @@ status_handling_dict = {
     "deferred": (lambda: DeferredJobRegistry().get_job_ids(), lambda: DeferredJobRegistry().cleanup()),
 }
 
+
 def attack(**kwargs):
     em = EvaluationManager(
         dataset_id=os.path.join(DATA_FOLDER, 'data.h5'),
@@ -39,6 +40,16 @@ def attack(**kwargs):
     )
     eval = em.sec_eval_curve()
     return eval
+
+
+def fake_attack(**kwargs):
+    # DO NOT USE -- used for testing frontend
+    eval_results = {"sec-level": "low",
+                    "sec-value": 0.4,
+                    "sec-curve": {
+                        "x-values": [0.0, 0.05, 0.1, 0.2, 0.3, 0.6],
+                        "y-values": [1.0, 0.9, 0.8, 0.5, 0.1, 0.0]}}
+    return eval_results
 
 
 class SecurityEvaluations(Resource):
@@ -85,7 +96,7 @@ class SecurityEvaluations(Resource):
             if 'csrf_token' in attack_params:
                 del attack_params['csrf_token']
             evaluation_mode = form.data['eval_mode']
-            stop_value = 4/255 if form.data['pert_type'] == 'linf' else 0.2
+            stop_value = 4 / 255 if form.data['pert_type'] == 'linf' else 0.2
             pert_values = np.linspace(start=0, stop=stop_value, num=4).tolist()
             args = {'trained-model': model,
                     'dataset': dataset,
