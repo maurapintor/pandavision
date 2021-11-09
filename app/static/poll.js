@@ -61,7 +61,7 @@ function makeGraph(results) {
             data: zip(results['sec-curve']['x-values'], results['sec-curve']['y-values']),
             borderColor: 'rgb( 35, 128, 126)',
             backgroundColor: 'rgba(35,128,126,0.73)',
-            tension: 0.3,
+            tension: 0.05,
         }]
     }
     var myChart = new Chart(ctx, {

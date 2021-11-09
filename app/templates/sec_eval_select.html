@@ -72,6 +72,12 @@
             </div>
         </div>
 
+        <select class="selectpicker show-menu-arrow form-control" multiple>
+            <option>0.1</option>
+            <option>0.2</option>
+            <option>0.3</option>
+        </select>
+
         <h4 id="attack_title">
             Attack:
         </h4>
@@ -99,6 +105,7 @@
     <script src="{{ url_for("static", filename="preprocessing_select.js") }}" id="preprocessing"></script>
     <script src="{{ url_for("static", filename="attack_select.js") }}" id="attack"></script>
     <script src="{{ url_for("static", filename="attack_params.js") }}" id="attack-params"></script>
-
+    <script>
+    </script>
 {% endblock %}
 
