@@ -16,6 +16,10 @@ ATTACK_CHOICES = {
     'l2': [('PGD', 'pgd-l2'), ('CW', 'cw'), ('Random', 'noise-l2')],
 }
 
+PERT_SIZES = {
+    'linf': ["1/255", "2/255", "4/255", "8/255", "16/255"],
+    'l2': ["0.01", "0.02", "0.05", "0.1", "0.2", "0.5"],
+}
 
 class EvaluationManager:
     def __init__(self, dataset_id: str,
