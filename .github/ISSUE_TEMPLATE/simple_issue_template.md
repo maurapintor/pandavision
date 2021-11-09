@@ -1,3 +1,11 @@
+---
+name: Simple issue
+about: Generic issue template
+title: ''
+labels: ''
+assignees: ''
+
+---
 ## Expected Behavior
 
 
