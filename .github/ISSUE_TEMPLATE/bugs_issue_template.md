@@ -44,8 +44,8 @@ Issue tracker is **ONLY** used for reporting bugs. New features should be discus
 
 ## Please tell us about your environment:**
   
-  - OS: [all | Linux | Mac OS | Windows | Other]
-  - Version: 2.0.0-beta.X
-  - Browser: [all | Chrome XX | Firefox XX | IE XX | Safari XX | Mobile Chrome XX | Android X.X Web Browser | iOS XX Safari | iOS XX UIWebView | iOS XX WKWebView ]
-  - Language: [all | TypeScript X.X | ES6/7 | ES5 | Dart]
+  - OS: 
+  - Python Version: 
+  - Pandavision Version:
+  - Browser: 
 
