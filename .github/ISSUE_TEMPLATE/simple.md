@@ -1,3 +1,11 @@
+---
+name: Bug report
+about: Create a report to help this project
+title: ''
+labels: ''
+assignees: ''
+
+---
 ## Expected Behavior
 
 
