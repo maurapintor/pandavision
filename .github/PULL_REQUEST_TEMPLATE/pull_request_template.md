@@ -1,4 +1,11 @@
+---
+name: Pull request template
+about: Create a pull request
+title: ''
+labels: ''
+assignees: ''
 
+---
 
 * **Please check if the PR fulfills these requirements**
 - [ ] The commit message follows our guidelines
