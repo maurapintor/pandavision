@@ -2,7 +2,6 @@ import logging
 import os
 
 import flask
-import numpy as np
 from flask import abort, render_template, make_response
 from flask_restful import Resource
 from rq import Connection
@@ -96,8 +95,9 @@ class SecurityEvaluations(Resource):
             if 'csrf_token' in attack_params:
                 del attack_params['csrf_token']
             evaluation_mode = form.data['eval_mode']
-            stop_value = 4 / 255 if form.data['pert_type'] == 'linf' else 0.2
-            pert_values = np.linspace(start=0, stop=stop_value, num=4).tolist()
+            perturbation_values = flask.request.form.getlist('pertpicker')
+            perturbation_values.insert(0, '0')
+            perturbation_values = list(map(float, perturbation_values))
             args = {'trained-model': model,
                     'dataset': dataset,
                     'metric': 'classification-accuracy',
@@ -106,7 +106,7 @@ class SecurityEvaluations(Resource):
                     'task': 'classification',
                     'preprocessing': preprocessing,
                     'evaluation-mode': evaluation_mode,
-                    'perturbation-values': pert_values,
+                    'perturbation-values': perturbation_values,
                     }
         with Connection(conn):
             q = Queue(connection=conn, name="sec-evals")
