@@ -6,7 +6,7 @@ from .api.security_evaluations_id_output_csv import SecurityEvaluationsIdOutputC
 from .api.adversarial_examples import AdversarialExamples
 from .api.adversarial_examples_id import AdversarialExamplesId
 from .api.adversarial_examples_id_output import AdversarialExamplesIdOutput
-from .api.attacks_list import AttackList, Attacks
+from .api.attacks_list import AttackList, Attacks, PertSizes
 from .api.upload_file import UploadFiles
 
 routes = [
@@ -21,4 +21,5 @@ routes = [
     dict(resource=AdversarialExamplesIdOutput, urls=['/adversarial_examples/<id>/output'], endpoint='adversarial_examples_id_output'),
     dict(resource=Attacks, urls=['/attacks'], endpoint='attacks'),
     dict(resource=AttackList, urls=['/attacks/<pert_type>'], endpoint='attacks_pert_type'),
+    dict(resource=PertSizes, urls=['/pert_sizes/<pert_type>'], endpoint='pert_sizes_pert_type'),
 ]
