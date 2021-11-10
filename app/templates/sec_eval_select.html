@@ -72,6 +72,10 @@
             </div>
         </div>
 
+        <select id="pertpicker" class="selectpicker  form-control" multiple title="Choose perturbation size..."
+                data-actions-box="true">
+        </select>
+
         <h4 id="attack_title">
             Attack:
         </h4>
@@ -99,6 +103,28 @@
     <script src="{{ url_for("static", filename="preprocessing_select.js") }}" id="preprocessing"></script>
     <script src="{{ url_for("static", filename="attack_select.js") }}" id="attack"></script>
     <script src="{{ url_for("static", filename="attack_params.js") }}" id="attack-params"></script>
+    <script>
+        let pert_size_picker =  $('#pertpicker');
 
+        function checkPertSizes() {
+            pert_type = pert_type_select.value;
+            fetch('/pert_sizes/' + pert_type).then(function (response) {
+                response.json().then(function (data) {
+                    let optionHTML = '';
+                    for (let ps of data.pert_sizes) {
+                        optionHTML += '<option value="' + ps +  '">' + ps + '</option>';
+                    }
+                    pert_size_picker.html(optionHTML);
+                    pert_size_picker.selectpicker('refresh');
+                    pert_size_picker.selectpicker('render');
+                });
+            });
+        }
+
+        pert_type_select.onclick = checkPertSizes;
+
+        $(document).ready(checkPertSizes);
+
+    </script>
 {% endblock %}
 
