@@ -58,7 +58,7 @@ sudo service redis stop
 In order to use the docker-compose file provided, install [Docker](https://www.docker.com/) and start the Docker service.
 
 Since this project uses different interconnected containers, it is recommended to install and 
-use [Docker Compose](https://docs.docker.com/compose/).
+use [Docker Compose](https://docs.docker.com/compose/). **Please, install at least v1.16 of docker-compose to avoid issues.**
 
 Once set up, Docker Compose will automatically take care of the setup process. 
 Just type the following commands in your shell, from the `app` path:
