@@ -1,11 +1,12 @@
 import os
 
 import numpy as np
+import torch
 from foolbox.attacks import (
     L2AdditiveUniformNoiseAttack, LinfAdditiveUniformNoiseAttack)
 from secml.adv.attacks.evasion import (
     CFoolboxPGDLinf, CFoolboxPGDL2, CFoolboxPGDL1,
-    CFoolboxL2CarliniWagner, CAttackEvasionFoolbox)
+    CAttackEvasionFoolbox)
 from secml.array import CArray
 from secml.data import CDataset
 from secml.ml.peval.metrics import CMetricAccuracy
@@ -13,6 +14,8 @@ from secml.ml.peval.metrics import CMetricAccuracy
 from adv.attack_base import AttackBase
 
 # attack cls, is min-distance, is secml-class, attack-norm
+from app.adv.classification.attacks.cw_attack_local import CFoolboxL2CarliniWagner
+
 SUPPORTED_ATTACKS = {
     'pgd-linf': (CFoolboxPGDLinf, False, True, np.inf),
     'pgd-l2': (CFoolboxPGDL2, False, True, 2),
@@ -30,7 +33,9 @@ class AttackClassification(AttackBase):
 
     def run(self, x, y, attack, attack_params, eps):
         if eps == 0:
-            return x.numpy()
+            preds = torch.from_numpy(self.model.predict(x).tondarray())
+            is_adv = np.array((preds != y))
+            return is_adv, x.numpy(),
         self.prepare_attack(attack, attack_params, eps)
         x, y = x.numpy().astype(np.float64), y.numpy()
         orig_shape = x.shape
@@ -39,10 +44,9 @@ class AttackClassification(AttackBase):
         ts = CDataset(data, labels)
 
         preds, _, adv_ds, _ = self.attack.run(ts.X, ts.Y)
-
         adv_samples = adv_ds.X.tondarray().reshape(orig_shape)
-
-        return adv_samples
+        is_adv = np.array((preds.tondarray() != y))
+        return is_adv, adv_samples
 
     def prepare_attack(self, attack, attack_params, eps):
         attack_params.update({

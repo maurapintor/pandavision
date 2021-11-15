@@ -17,9 +17,10 @@ ATTACK_CHOICES = {
 }
 
 PERT_SIZES = {
-    'linf': [("1/255", 1/255), ("2/255", 2/255), ("4/255", 4/255), ("8/255", 8/255), ("16/255", 16/255)],
+    'linf': [("1/255", 1 / 255), ("2/255", 2 / 255), ("4/255", 4 / 255), ("8/255", 8 / 255), ("16/255", 16 / 255)],
     'l2': [("0.01", 0.01), ("0.02", 0.02), ("0.05", 0.05), ("0.1", 0.1), ("0.2", 0.2), ("0.5", 0.5)],
 }
+
 
 class EvaluationManager:
     def __init__(self, dataset_id: str,
@@ -110,7 +111,9 @@ class EvaluationManager:
             # default value
             self._perturbation_values = [0, 0.01, 0.02, 0.03, 0.04, 0.05]
 
-        self.cached_adv_points = None
+        self.cached_is_adv = None
+        self.cached_min_distance = None
+        self._batch_is_cached = None
 
         if self._num_samples is None:
             self._num_samples = self._validation_loader.dataset._samples.shape[0]
@@ -152,32 +155,55 @@ class EvaluationManager:
 
         results = []
         batch_size = self._validation_loader.batch_size
+        self._batch_is_cached = [False for _ in range(len(self._validation_loader))]
+        self.cached_is_adv = torch.full(size=(self._num_samples,), fill_value=False)
+        self.cached_min_distance = torch.full(size=(self._num_samples,), fill_value=np.inf)
+
         for eps in self._perturbation_values:
             acc = []
             for batch_idx, (samples, labels) in enumerate(self._validation_loader):
                 if self.attack.is_min_distance(self._attack_cls):
-                    if self.cached_adv_points is None:
-                        self.cached_adv_points = torch.empty(size=(self._num_samples, *self.input_shape),
-                                                             dtype=samples.dtype)
-                        self._batch_is_cached = [False for _ in range(len(self._validation_loader))]
                     if self._batch_is_cached[batch_idx] is False:
-                        adv_points = torch.from_numpy(
-                            self.attack.run(samples, labels, self._attack_cls, self._attack_params, eps))
-                        self.cached_adv_points[batch_idx * batch_size:
-                                               min((batch_idx + 1) * batch_size, self._num_samples)] = \
-                            adv_points.detach()
+                        is_adv, adv_points = self.attack.run(samples, labels, self._attack_cls, self._attack_params,
+                                                             eps)
+                        adv_points = torch.from_numpy(adv_points)
+                        is_adv = torch.from_numpy(is_adv)
+                        distances = (adv_points - samples).view(adv_points.shape[0], -1).norm(dim=1,
+                                                                                              p=self.attack.attack_norm(
+                                                                                                  self._attack_cls))
+                        distances[torch.logical_not(is_adv)] = np.inf
+                        self.cached_is_adv[batch_idx * batch_size:
+                                           min((batch_idx + 1) * batch_size, self._num_samples)] = is_adv
+                        self.cached_min_distance[batch_idx * batch_size:
+                                                 min((batch_idx + 1) * batch_size, self._num_samples)] = distances
                         if eps > 0:
                             self._batch_is_cached[batch_idx] = True
                     else:
-                        adv_points = self.cached_adv_points[batch_idx * batch_size:
-                                                            min((batch_idx + 1) * batch_size, self._num_samples),
-                                     ...].clone()
-                    not_adv = (adv_points - samples).view(adv_points.shape[0], -1).norm(
-                        dim=1, p=self.attack.attack_norm(self._attack_cls)) >= eps
-                    adv_points[not_adv, ...] = samples[not_adv, ...]
+                        pass
                 else:
-                    adv_points = self.attack.run(samples, labels, self._attack_cls, self._attack_params, eps)
-                perf = self.attack.evaluate_perf(adv_points, labels)
+                    is_adv_batch = self.cached_is_adv[batch_idx * batch_size:
+                                                      min((batch_idx + 1) * batch_size, self._num_samples)]
+                    not_yet_adv = torch.where(torch.logical_not(is_adv_batch), True, False)
+                    is_adv, adv_points = self.attack.run(samples[not_yet_adv, ...], labels[not_yet_adv, ...],
+                                                         self._attack_cls, self._attack_params, eps)
+                    is_adv = torch.from_numpy(is_adv)
+                    adv_points = torch.from_numpy(adv_points)
+                    now_adv = not_yet_adv[is_adv]
+                    if len(now_adv) > 0:
+                        self.cached_is_adv[batch_idx * batch_size:
+                                           min((batch_idx + 1) * batch_size, self._num_samples)] = now_adv
+                    distances = (adv_points - samples).view(adv_points.shape[0], -1).norm(dim=1,
+                                                                                          p=self.attack.attack_norm(
+                                                                                              self._attack_cls))
+                    self.cached_min_distance[now_adv] = distances[is_adv]
+                    self.cached_min_distance[torch.logical_not(self.cached_is_adv)] = np.inf
+
+                print("min dist", self.cached_min_distance)
+                print("not adv: ", torch.logical_not(self.cached_is_adv).tolist())
+                print("dist constr:", (torch.logical_and(self.cached_is_adv, self.cached_min_distance > eps).tolist()))
+                perf = torch.logical_or(torch.logical_not(self.cached_is_adv),
+                                        torch.logical_and(self.cached_is_adv, self.cached_min_distance > eps)) \
+                    .type(torch.FloatTensor).mean()
                 acc.append(perf)
             avg_acc = np.array(acc).mean()
             results.append(avg_acc)
@@ -197,7 +223,10 @@ class EvaluationManager:
         :param performances: array containing a perf value for
             each of the perturbation values
         """
-        sec_value = np.mean(performances) / performances[0]
+        if performances[0] == 0:
+            sec_value = np.array(-1)
+        else:
+            sec_value = np.mean(performances) / performances[0]
         sec_levels = ((0.33, 0.66, 1.5), ("low", "medium", "high"))
 
         # compute sec-level

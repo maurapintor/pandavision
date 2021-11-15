@@ -5,10 +5,10 @@ from wtforms.validators import DataRequired
 
 
 class CWForm(FlaskForm):
-    steps = IntegerField("steps")
-    binary_search_steps = IntegerField("binary_search_steps")
-    confidence = FloatField("kappa")
-    initial_const = FloatField("c")
+    steps = IntegerField("steps", default=100)
+    binary_search_steps = IntegerField("binary_search_steps", default=9)
+    confidence = FloatField("kappa", default=0)
+    initial_const = FloatField("c", default=1e-3)
     abort_early = BooleanField("early_stopping", default=False)
 
 class PGDForm(FlaskForm):
