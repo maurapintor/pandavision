@@ -5,16 +5,16 @@ from wtforms.validators import DataRequired
 
 
 class CWForm(FlaskForm):
-    steps = IntegerField("steps")
-    binary_search_steps = IntegerField("binary_search_steps")
-    confidence = FloatField("kappa")
-    initial_const = FloatField("c")
+    steps = IntegerField("steps", default=100)
+    binary_search_steps = IntegerField("binary_search_steps", default=9)
+    confidence = FloatField("kappa", default=0)
+    initial_const = FloatField("c", default=1e-3)
     abort_early = BooleanField("early_stopping", default=False)
 
 class PGDForm(FlaskForm):
-    steps = IntegerField("steps")
-    rel_stepsize = FloatField("rel_stepsize")
-    abs_stepsize = FloatField("abs_stepsize")
+    steps = IntegerField("steps", default=50)
+    rel_stepsize = FloatField("rel_stepsize", default=0.025)
+    abs_stepsize = FloatField("abs_stepsize", default=None)
     random_start = BooleanField("random_start", default=False)
 
 
