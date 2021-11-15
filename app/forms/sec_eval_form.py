@@ -12,9 +12,9 @@ class CWForm(FlaskForm):
     abort_early = BooleanField("early_stopping", default=False)
 
 class PGDForm(FlaskForm):
-    steps = IntegerField("steps")
-    rel_stepsize = FloatField("rel_stepsize")
-    abs_stepsize = FloatField("abs_stepsize")
+    steps = IntegerField("steps", default=50)
+    rel_stepsize = FloatField("rel_stepsize", default=0.025)
+    abs_stepsize = FloatField("abs_stepsize", default=None)
     random_start = BooleanField("random_start", default=False)
 
 
