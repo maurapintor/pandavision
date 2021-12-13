@@ -159,7 +159,7 @@ class EvaluationManager:
                              "be a list of floats. Received {}"
                              "".format(self._perturbation_values))
 
-        results = []
+        acc_results = []
         batch_size = self._validation_loader.batch_size
         self._batch_is_cached = [False for _ in range(len(self._validation_loader))]
         self.cached_is_adv = torch.full(size=(self._num_samples,), fill_value=False)
@@ -242,8 +242,18 @@ class EvaluationManager:
                     .type(torch.FloatTensor).mean()
                 acc.append(perf)
             avg_acc = np.array(acc).mean()
-            results.append(avg_acc)
-        results = np.array(results)
+            acc_results.append(avg_acc)
+        acc_results = np.array(acc_results)
+        results = {'acc_results': acc_results}
+
+        # add cached values, if present
+        if self.attack.debug_possible is True:
+            results.update({
+                'attack_losses': self.attack_losses,
+                'attack_scores': self.attack_scores,
+                'attack_distances': self.attack_distances
+            })
+
         response = self.prepare_response(results)
         return response
 
@@ -253,12 +263,14 @@ class EvaluationManager:
         adv_points = self.attack.run(samples, labels, eps)
         return adv_points
 
-    def prepare_response(self, performances: np.ndarray):
+    def prepare_response(self, results: dict):
         """
         Returns the response object for a security evaluation.
         :param performances: array containing a perf value for
             each of the perturbation values
         """
+
+        performances = results['acc_results']
         if performances[0] == 0:
             sec_value = np.array(-1)
         else:
@@ -273,6 +285,10 @@ class EvaluationManager:
                         "sec-curve": {
                             "x-values": ["{:.3f}".format(v) for v in self._perturbation_values],
                             "y-values": performances.tolist()}}
+
+        for k in ['attack_distances', 'attack_losses', 'attack_scores']:
+            if k in results:
+                eval_results.update(results[k])
         return eval_results
 
 
