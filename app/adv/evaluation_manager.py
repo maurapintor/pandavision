@@ -6,6 +6,7 @@ from typing import List, Union
 
 import numpy as np
 import torch
+from secml.array import CArray
 
 from .classification.attack_classification import AttackClassification, SUPPORTED_ATTACKS
 from .dataset_loader import CustomDatasetLoader
@@ -111,9 +112,14 @@ class EvaluationManager:
             # default value
             self._perturbation_values = [0, 0.01, 0.02, 0.03, 0.04, 0.05]
 
+        # initialize caches
         self.cached_is_adv = None
         self.cached_min_distance = None
         self._batch_is_cached = None
+        self.attack_losses = None
+        self.attack_distances = None
+        self.attack_scores = None
+        self.adv_examples = None
 
         if self._num_samples is None:
             self._num_samples = self._validation_loader.dataset._samples.shape[0]
@@ -159,9 +165,22 @@ class EvaluationManager:
         self.cached_is_adv = torch.full(size=(self._num_samples,), fill_value=False)
         self.cached_min_distance = torch.full(size=(self._num_samples,), fill_value=np.inf, dtype=torch.float64)
 
-        for eps in self._perturbation_values:
+        steps = self._attack_params.get('steps', 0)
+
+        self.attack_losses = torch.empty(
+            size=(len(self._perturbation_values), self._num_samples, steps))
+        self.attack_distances = torch.empty(
+            size=(len(self._perturbation_values), self._num_samples, steps))
+        self.attack_scores = torch.empty(
+            size=(len(self._perturbation_values), self._num_samples, steps, len(self.attack.classes)))
+        self.adv_examples = torch.empty(
+            size=(len(self._perturbation_values), self._num_samples, *self.input_shape))
+
+        for eps_idx, eps in enumerate(self._perturbation_values):
             acc = []
             for batch_idx, (samples, labels) in enumerate(self._validation_loader):
+                min_batch_index = batch_idx * batch_size
+                max_batch_index = min((batch_idx + 1) * batch_size, self._num_samples)
                 if self.attack.is_min_distance(self._attack_cls):
                     if self._batch_is_cached[batch_idx] is False:
                         is_adv, adv_points = self.attack.run(samples, labels, self._attack_cls, self._attack_params,
@@ -172,34 +191,52 @@ class EvaluationManager:
                                                                                               p=self.attack.attack_norm(
                                                                                                   self._attack_cls))
                         distances[torch.logical_not(is_adv)] = np.inf
-                        self.cached_is_adv[batch_idx * batch_size:
-                                           min((batch_idx + 1) * batch_size, self._num_samples)] = is_adv
-                        self.cached_min_distance[batch_idx * batch_size:
-                                                 min((batch_idx + 1) * batch_size, self._num_samples)] = distances
+                        self.cached_is_adv[min_batch_index:
+                                           max_batch_index] = is_adv
+                        self.cached_min_distance[min_batch_index:
+                                                 max_batch_index] = distances
                         if eps > 0:
                             self._batch_is_cached[batch_idx] = True
                     else:
                         pass
                 else:
-                    is_adv_batch = self.cached_is_adv[batch_idx * batch_size:
-                                                      min((batch_idx + 1) * batch_size, self._num_samples)]
-                    distances_batch = self.cached_min_distance[batch_idx * batch_size:
-                                                               min((batch_idx + 1) * batch_size, self._num_samples)]
+                    is_adv_batch = self.cached_is_adv[min_batch_index:
+                                                      max_batch_index]
+                    distances_batch = self.cached_min_distance[min_batch_index:
+                                                               max_batch_index]
                     not_yet_adv = torch.nonzero(torch.logical_not(is_adv_batch))
                     if len(not_yet_adv) > 0:
-                        is_adv, adv_points = self.attack.run(samples[not_yet_adv, ...], labels[not_yet_adv, ...],
+                        is_adv, adv_points = self.attack.run(samples[not_yet_adv, ...],
+                                                             labels[not_yet_adv, ...],
                                                              self._attack_cls, self._attack_params, eps)
                         is_adv = torch.from_numpy(is_adv)
                         is_adv_batch[not_yet_adv[is_adv]] = is_adv
                         adv_points = torch.from_numpy(adv_points)
-                        self.cached_is_adv[batch_idx * batch_size:
-                                           min((batch_idx + 1) * batch_size, self._num_samples)] = is_adv_batch
+                        self.cached_is_adv[min_batch_index:
+                                           max_batch_index] = is_adv_batch
                         distances = (adv_points - samples).view(adv_points.shape[0], -1).norm(dim=1,
                                                                                               p=self.attack.attack_norm(
                                                                                                   self._attack_cls))
                         distances_batch[is_adv_batch] = distances
-                        self.cached_min_distance[batch_idx * batch_size:
-                                                 min((batch_idx + 1) * batch_size, self._num_samples)] = distances_batch
+                        self.cached_min_distance[min_batch_index:
+                                                 max_batch_index] = distances_batch
+
+                        if self.attack.debug_possible is True:
+                            # skip eps = 0
+                            if eps_idx >= 1:
+                                x_seq = self.attack.attack.x_seq
+                                self.attack_losses[eps_idx, min_batch_index:
+                                                            max_batch_index, :] = \
+                                    to_torch(self.attack.attack.objective_function(
+                                        x_seq))
+                                self.attack_distances[eps_idx, min_batch_index:
+                                                               max_batch_index, :] = \
+                                    to_torch((x_seq[0, :] - x_seq).norm_2d(axis=1).ravel())
+                                print(self._model.decision_function(x_seq).shape)
+                                self.attack_scores[eps_idx, min_batch_index:
+                                                            max_batch_index, :, :] = \
+                                    to_torch(self._model.decision_function(x_seq))
+
                 perf = torch.logical_or(torch.logical_not(self.cached_is_adv),
                                         torch.logical_and(self.cached_is_adv, self.cached_min_distance > eps)) \
                     .type(torch.FloatTensor).mean()
@@ -237,3 +274,10 @@ class EvaluationManager:
                             "x-values": ["{:.3f}".format(v) for v in self._perturbation_values],
                             "y-values": performances.tolist()}}
         return eval_results
+
+
+def to_torch(x):
+    if isinstance(x, CArray):
+        x = x.tondarray()
+    x = torch.from_numpy(x)
+    return x

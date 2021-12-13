@@ -13,16 +13,16 @@ from secml.ml.peval.metrics import CMetricAccuracy
 
 from adv.attack_base import AttackBase
 
-# attack cls, is min-distance, is secml-class, attack-norm
+# attack cls, is min-distance, is secml-class, attack-norm, debug-possible
 from app.adv.classification.attacks.cw_attack_local import CFoolboxL2CarliniWagner
 
 SUPPORTED_ATTACKS = {
-    'pgd-linf': (CFoolboxPGDLinf, False, True, np.inf),
-    'pgd-l2': (CFoolboxPGDL2, False, True, 2),
-    'pgd-l1': (CFoolboxPGDL1, False, True, 1),
-    'cw': (CFoolboxL2CarliniWagner, True, True, 2),
-    'noise-linf': (LinfAdditiveUniformNoiseAttack, False, False, np.inf),
-    'noise-l2': (L2AdditiveUniformNoiseAttack, False, False, 2),
+    'pgd-linf': (CFoolboxPGDLinf, False, True, np.inf, True),
+    'pgd-l2': (CFoolboxPGDL2, False, True, 2, True),
+    'pgd-l1': (CFoolboxPGDL1, False, True, 1, True),
+    'cw': (CFoolboxL2CarliniWagner, True, True, 2, True),
+    'noise-linf': (LinfAdditiveUniformNoiseAttack, False, False, np.inf, False),
+    'noise-l2': (L2AdditiveUniformNoiseAttack, False, False, 2, False),
 }
 
 
@@ -32,11 +32,11 @@ class AttackClassification(AttackBase):
         super(AttackClassification, self).__init__(model, lb, ub)
 
     def run(self, x, y, attack, attack_params, eps):
+        self.prepare_attack(attack, attack_params, eps)
         if eps == 0:
             preds = torch.from_numpy(self.model.predict(x).tondarray())
             is_adv = np.array((preds != y))
             return is_adv, x.numpy(),
-        self.prepare_attack(attack, attack_params, eps)
         x, y = x.numpy().astype(np.float64), y.numpy()
         orig_shape = x.shape
         data = CArray(x.reshape(x.shape[0], -1))
@@ -53,7 +53,7 @@ class AttackClassification(AttackBase):
             'lb': self.lb,
             'ub': self.ub})
         attack_cls, is_min_distance, \
-        self.is_secml_class, attack_norm = SUPPORTED_ATTACKS[attack]
+        self.is_secml_class, attack_norm, self.debug_possible = SUPPORTED_ATTACKS[attack]
         if is_min_distance is False:
             attack_params.update({'epsilons': eps})
         if self.is_secml_class:
