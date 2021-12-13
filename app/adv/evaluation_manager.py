@@ -232,7 +232,6 @@ class EvaluationManager:
                                 self.attack_distances[eps_idx, min_batch_index:
                                                                max_batch_index, :] = \
                                     to_torch((x_seq[0, :] - x_seq).norm_2d(axis=1).ravel())
-                                print(self._model.decision_function(x_seq).shape)
                                 self.attack_scores[eps_idx, min_batch_index:
                                                             max_batch_index, :, :] = \
                                     to_torch(self._model.decision_function(x_seq))
@@ -288,7 +287,7 @@ class EvaluationManager:
 
         for k in ['attack_distances', 'attack_losses', 'attack_scores']:
             if k in results:
-                eval_results.update(results[k])
+                eval_results.update({k: results[k].tolist()})
         return eval_results
 
 
