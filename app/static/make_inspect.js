@@ -27,12 +27,6 @@ const getChartIfExists = (canvasId, ctx, data) => {
 
                             }
                         },
-                        scales: {
-                            y: {
-                                suggestedMin: 0,
-                                suggestedMax: 1.1,
-                            },
-                        },
 
                     },
                 }
@@ -56,6 +50,7 @@ function makeInspect(results, plotContent) {
             borderColor: 'rgb( 35, 128, 126)',
             backgroundColor: 'rgba(35,128,126,0.73)',
             tension: 0.05,
+            showLine: true,
         }
     );
 
@@ -108,15 +103,14 @@ function getSamples() {
     });
 }
 
-let plotContentSelect = document.getElementById('plotContentSelect')
-let epsSelect = document.getElementById('epsSelect');
-let sampleSelect = document.getElementById('sampleSelect');
+function showInspect() {
+    $('#inspectResultsDiv').css("visibility", 'visible');
+    let plotContentSelect = document.getElementById('plotContentSelect')
+    let epsSelect = document.getElementById('epsSelect');
+    let sampleSelect = document.getElementById('sampleSelect');
 
-plotContentSelect.onchange = updateCurves;
-plotContentSelect.onclick = updateCurves;
-epsSelect.onchange = updateCurves;
-sampleSelect.onchange = updateCurves;
-
-$(document).ready(getSamples);
-$(document).ready(updateCurves);
-
+    plotContentSelect.onchange = updateCurves;
+    plotContentSelect.onclick = updateCurves;
+    epsSelect.onchange = updateCurves;
+    sampleSelect.onchange = updateCurves;
+}

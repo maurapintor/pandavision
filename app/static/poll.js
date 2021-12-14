@@ -18,7 +18,8 @@ function update(jobId) {
                     $('#waitText').text("");
                     makeGraph(data['results']);
                     $('#inspectButton').css("visibility", 'visible');
-                    // $('inspectButton').onclick = showSamples;
+                    getSamples();
+                    updateCurves();
                     break;
                 case "started":
                     $('#waitText').text("Job started...");

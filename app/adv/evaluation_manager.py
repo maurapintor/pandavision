@@ -231,7 +231,8 @@ class EvaluationManager:
                                         x_seq))
                                 self.attack_distances[eps_idx, min_batch_index:
                                                                max_batch_index, :] = \
-                                    to_torch((x_seq[0, :] - x_seq).norm_2d(axis=1).ravel())
+                                    to_torch((x_seq[0, :] - x_seq).norm_2d(axis=1, order=
+                                    self.attack.attack_norm(self._attack_cls)).ravel())
                                 self.attack_scores[eps_idx, min_batch_index:
                                                             max_batch_index, :, :] = \
                                     to_torch(self._model.decision_function(x_seq))

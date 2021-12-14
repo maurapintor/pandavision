@@ -1,4 +1,5 @@
 import logging
+
 import flask
 from flask import abort, render_template, make_response
 from flask_restful import Resource
