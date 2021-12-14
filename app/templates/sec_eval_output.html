@@ -51,12 +51,23 @@
                         <div class="col-1">
                         </div>
                         <div class="col">
+                            <div>
+                                <label class="btn">Epsilon: </label>
+                                <select id="epsSelect" class="btn btn-secondary dropdown-toggle">
+                                </select>
+                                <label class="btn">Sample id: </label>
+
+                                <select id="sampleSelect" class="btn btn-secondary dropdown-toggle">
+                                </select>
+                            </div>
                             <div class="btn-group btn-group-toggle btn-check" id="plotContentSelect">
                                 <label class="btn btn-secondary active">
-                                    <input type="radio" name="plotOptions" id="losses_checked" value="attack_losses" checked> Loss
+                                    <input type="radio" name="plotOptions" id="losses_checked" value="attack_losses"
+                                           checked> Loss
                                 </label>
                                 <label class="btn btn-secondary">
-                                    <input type="radio" name="plotOptions" id="distance_checked" value="attack_distances"> Distance
+                                    <input type="radio" name="plotOptions" id="distance_checked"
+                                           value="attack_distances"> Distance
                                 </label>
                             </div>
                             <canvas id="inspectResults"></canvas>

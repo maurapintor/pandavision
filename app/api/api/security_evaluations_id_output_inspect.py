@@ -52,9 +52,15 @@ class SecurityEvaluationsIdOutputInspectEps(Resource):
         # todo but the result ttl has expired
         if job.is_finished:
             result = job.result
-            loss_curve = result.get('loss_curves')
+            loss_curve = result.get('attack_losses')
+            distance_curve = result.get('attack_distances')
             eps_idx = int(eps_idx)
-            return len(loss_curve[eps_idx])
+            return {
+                'attack_losses': loss_curve[eps_idx],
+                'attack_distances': distance_curve[eps_idx],
+                'epsilon_vals': result.get('sec-curve').get('x-values'),
+                'num_samples': len(loss_curve[eps_idx])
+            }
         else:
             # redirect to job status API
             return "Temporary redirect. Job not finished yet.", \
@@ -77,8 +83,8 @@ class SecurityEvaluationsIdOutputInspect(Resource):
         if job.is_finished:
             result = job.result
             epsilon_values = result.get('sec-curve').get('x-values')
-            num_samples = len(result.get('attack_losses')[0][0])
-            return {'epsilon_values': epsilon_values,
+            num_samples = len(result.get('attack_losses')[0])
+            return {'epsilon_values': epsilon_values[1:],
                     'num_samples': list(range(num_samples))}
         else:
             # redirect to job status API

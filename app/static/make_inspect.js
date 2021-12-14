@@ -1,100 +1,86 @@
 const chartsByCanvasId = {};
 
-const destroyChartIfNecessary = (canvasId) => {
+const getChartIfExists = (canvasId, ctx, data) => {
     if (chartsByCanvasId[canvasId]) {
-        chartsByCanvasId[canvasId].destroy();
-    }
-}
+        myChart = chartsByCanvasId[canvasId];
+        myChart.data = data;
+        myChart.update();
+    } else {
+        var myChart = new Chart(ctx, {
+                    type: 'scatter',
+                    data: data,
+                    options: {
+                        layout: {
+                            padding: 50
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
 
-const registerNewChart = (canvasId, chart) => {
-    chartsByCanvasId[canvasId] = chart;
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                displayColors: false,
+
+                            }
+                        },
+                        scales: {
+                            y: {
+                                suggestedMin: 0,
+                                suggestedMax: 1.1,
+                            },
+                        },
+
+                    },
+                }
+            )
+        ;
+    }
+    chartsByCanvasId[canvasId] = myChart;
 }
 
 
 // makes curves plots with attack debugging info
 function makeInspect(results, plotContent) {
     var ctx = document.getElementById("inspectResults").getContext('2d');
-    var data = {
-        labels: Array.apply(null, {length: results[plotContent].length}).map(eval.call, Number),
-        datasets: [{
+    console.log(results);
+    datasets = [];
+    datasets.push(
+        {
             label: '',
             fill: false,
             data: zip(Array.apply(null, {length: results[plotContent].length}).map(eval.call, Number), results[plotContent]),
             borderColor: 'rgb( 35, 128, 126)',
             backgroundColor: 'rgba(35,128,126,0.73)',
             tension: 0.05,
-        }]
-    }
-
-    let canvasId = 2;
-    destroyChartIfNecessary(canvasId);
-    var myChart = new Chart(ctx, {
-            type: 'scatter',
-            data: data,
-            options: {
-                layout: {
-                    padding: 50
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-
-                plugins: {
-                    legend: {
-                        display: false,
-                    },
-                    tooltip: {
-                        displayColors: false,
-                        callbacks: {
-                            label: function (context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += 'accuracy: ' + (context.parsed.y * 100).toFixed(2) + ' %';
-                                }
-                                return label;
-                            },
-                            title: function (context) {
-                                let title = context.title || '';
-                                if (title) {
-                                    title += ': ';
-                                }
-                                if (context.title !== null) {
-                                    title += 'epsilon = ' + (context[0].label);
-                                }
-                                return title;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        suggestedMin: 0,
-                        suggestedMax: 1.1,
-                    },
-                },
-
-            },
         }
     );
-    registerNewChart(canvasId, myChart);
 
+    var data = {
+        labels: Array.apply(null, {length: results[plotContent].length}).map(eval.call, Number),
+        datasets: datasets,
+    }
+    let canvasId = 'inspect';
+    getChartIfExists(canvasId, ctx, data);
 }
 
-function getInspectData(eps_idx, sample_idx) {
+function updateCurves() {
+    // first eps value is zero and it is skipped
+    const eps_idx = epsSelect.selectedIndex + 1;
+    const sample_id = sampleSelect.selectedIndex;
+
     var scripts = document.getElementById('inspect');
     var jobID = scripts.getAttribute('jobid');
     var plotOptions = document.getElementsByName('plotOptions')
-    for(i = 0; i < plotOptions.length; i++) {
-                if(plotOptions[i].checked)
-                    var selected = plotOptions[i].value;
-            }
-
+    for (i = 0; i < plotOptions.length; i++) {
+        if (plotOptions[i].checked)
+            var selected = plotOptions[i].value;
+    }
     $.ajax({
-        url: `/security_evaluations/${jobID}/inspect/${eps_idx}/${sample_idx}`,
+        url: `/security_evaluations/${jobID}/inspect/${eps_idx}/${sample_id}`,
         success: function (data) {
             makeInspect(data, selected);
         }
@@ -108,12 +94,29 @@ function getSamples() {
     $.ajax({
         url: `/security_evaluations/${jobID}/inspect`,
         success: function (data) {
-            getInspectData(1, 2);
+            for (eps in data['epsilon_values']) {
+                var e = document.createElement("option");
+                e.innerHTML = '<option value="' + eps + '">' + data['epsilon_values'][eps] + '</option>';
+                epsSelect.appendChild(e);
+            }
+            for (sample_id in data['num_samples']){
+                var s = document.createElement("option");
+                s.innerHTML = '<option value="' + sample_id + '">' + data['num_samples'][sample_id] + '</option>';
+                sampleSelect.appendChild(s);
+            }
         }
     });
 }
 
 let plotContentSelect = document.getElementById('plotContentSelect')
+let epsSelect = document.getElementById('epsSelect');
+let sampleSelect = document.getElementById('sampleSelect');
 
-plotContentSelect.onchange = getSamples;
+plotContentSelect.onchange = updateCurves;
+plotContentSelect.onclick = updateCurves;
+epsSelect.onchange = updateCurves;
+sampleSelect.onchange = updateCurves;
+
 $(document).ready(getSamples);
+$(document).ready(updateCurves);
+
