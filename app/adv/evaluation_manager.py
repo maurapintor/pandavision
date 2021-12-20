@@ -175,6 +175,8 @@ class EvaluationManager:
             size=(self._num_samples, steps))
         self.attack_scores = torch.empty(
             size=(self._num_samples, steps, NUM_CLASSES_TO_SHOW * 2))
+        self.orig_samples = torch.empty(
+            size=(self._num_samples, *self.input_shape))
         self.adv_examples = torch.empty(
             size=(self._num_samples, *self.input_shape))
 
@@ -219,6 +221,8 @@ class EvaluationManager:
                                 max_final, indices_max_final = all_attack_scores[-1, :].topk(NUM_CLASSES_TO_SHOW)
                                 take_indexes = torch.cat([indices_max_beginning, indices_max_final])
                                 self.attack_scores[to_replace, :, :] = all_attack_scores[:, take_indexes]
+                                self.orig_samples[to_replace, ...] = samples
+                                self.adv_examples[to_replace, ...] = adv_points
                     else:
                         pass
                 else:
@@ -259,6 +263,8 @@ class EvaluationManager:
                                 max_final, indices_max_final = all_attack_scores[-1, :].topk(NUM_CLASSES_TO_SHOW)
                                 take_indexes = torch.cat([indices_max_beginning, indices_max_final])
                                 self.attack_scores[to_replace, :, :] = all_attack_scores[:, take_indexes]
+                                self.orig_samples[to_replace, ...] = samples
+                                self.adv_examples[to_replace, ...] = adv_points
 
                 perf = torch.logical_or(torch.logical_not(self.cached_is_adv),
                                         torch.logical_and(self.cached_is_adv, self.cached_min_distance > eps)) \
@@ -274,7 +280,9 @@ class EvaluationManager:
             results.update({
                 'attack_losses': self.attack_losses,
                 'attack_scores': self.attack_scores,
-                'attack_distances': self.attack_distances
+                'attack_distances': self.attack_distances,
+                'orig_samples': self.orig_samples,
+                'adv_examples': self.adv_examples,
             })
 
         response = self.prepare_response(results)
@@ -303,9 +311,10 @@ class EvaluationManager:
                             "x-values": ["{:.3f}".format(v) for v in self._perturbation_values],
                             "y-values": performances.tolist()}}
 
-        for k in ['attack_distances', 'attack_losses', 'attack_scores']:
+        for k in ['attack_distances', 'attack_losses', 'attack_scores', 'adv_examples', 'orig_samples']:
             if k in results:
                 eval_results.update({k: results[k].tolist()})
+
         eval_results['debug_possible'] = self.attack.debug_possible
         return eval_results
 

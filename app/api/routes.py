@@ -5,7 +5,7 @@ from .api.security_evaluations_id import SecurityEvaluationsId
 from .api.security_evaluations_id_output import SecurityEvaluationsIdOutput
 from .api.security_evaluations_id_output_csv import SecurityEvaluationsIdOutputCsv
 from .api.security_evaluations_id_output_inspect import SecurityEvaluationsIdOutputInspect, \
-    SecurityEvaluationsIdOutputInspectSample
+    SecurityEvaluationsIdOutputInspectSample, SecurityEvaluationsIdOutputInspectSampleImgType
 from .api.upload_file import UploadFiles
 
 routes = [
@@ -19,7 +19,10 @@ routes = [
          endpoint='security_evaluations_id_output_csv'),
     dict(resource=SecurityEvaluationsIdOutputInspectSample,
          urls=['/security_evaluations/<id>/inspect/<sample_idx>'],
-         endpoint='security_evaluations_id_output_inspect_eps_sample'),
+         endpoint='security_evaluations_id_output_inspect_sample'),
+    dict(resource=SecurityEvaluationsIdOutputInspectSampleImgType,
+         urls=['/security_evaluations/<id>/inspect/<sample_idx>/<img_type>'],
+         endpoint='security_evaluations_id_output_inspect_sample_img_type'),
     dict(resource=SecurityEvaluationsIdOutputInspect, urls=['/security_evaluations/<id>/inspect/'],
          endpoint='security_evaluations_id_output_inspect'),
     dict(resource=Attacks, urls=['/attacks'], endpoint='attacks'),

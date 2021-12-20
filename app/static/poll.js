@@ -16,10 +16,10 @@ function update(jobId) {
                 case "finished":
                     $('#spinner').hide();
                     $('#waitText').text("");
-                    if (data['results']['debug_possible']){
-                      $('#inspectButton').css("visibility", 'visible');
-                      getSamples();
-                        updateCurves();
+                    if (data['results']['debug_possible']) {
+                        $('#inspectButton').css("visibility", 'visible');
+                        getSamples();
+                        updateCurvesAndSample();
                     }
                     makeGraph(data['results']);
 
