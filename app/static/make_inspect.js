@@ -63,10 +63,7 @@ function makeInspect(results, plotContent) {
 }
 
 function updateCurves() {
-    // first eps value is zero and it is skipped
-    const eps_idx = epsSelect.selectedIndex + 1;
     const sample_id = sampleSelect.selectedIndex;
-
     var scripts = document.getElementById('inspect');
     var jobID = scripts.getAttribute('jobid');
     var plotOptions = document.getElementsByName('plotOptions')
@@ -74,8 +71,10 @@ function updateCurves() {
         if (plotOptions[i].checked)
             var selected = plotOptions[i].value;
     }
+
+
     $.ajax({
-        url: `/security_evaluations/${jobID}/inspect/${eps_idx}/${sample_id}`,
+        url: `/security_evaluations/${jobID}/inspect/${sample_id}`,
         success: function (data) {
             makeInspect(data, selected);
         }
@@ -89,11 +88,6 @@ function getSamples() {
     $.ajax({
         url: `/security_evaluations/${jobID}/inspect`,
         success: function (data) {
-            for (eps in data['epsilon_values']) {
-                var e = document.createElement("option");
-                e.innerHTML = '<option value="' + eps + '">' + data['epsilon_values'][eps] + '</option>';
-                epsSelect.appendChild(e);
-            }
             for (sample_id in data['num_samples']){
                 var s = document.createElement("option");
                 s.innerHTML = '<option value="' + sample_id + '">' + data['num_samples'][sample_id] + '</option>';
@@ -105,12 +99,10 @@ function getSamples() {
 
 function showInspect() {
     $('#inspectResultsDiv').css("visibility", 'visible');
-    let plotContentSelect = document.getElementById('plotContentSelect')
-    let epsSelect = document.getElementById('epsSelect');
+    let plotContentSelect = document.getElementById('plotContentSelect');
     let sampleSelect = document.getElementById('sampleSelect');
 
     plotContentSelect.onchange = updateCurves;
     plotContentSelect.onclick = updateCurves;
-    epsSelect.onchange = updateCurves;
     sampleSelect.onchange = updateCurves;
 }

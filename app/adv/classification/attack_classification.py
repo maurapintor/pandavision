@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from foolbox.attacks import (
     L2AdditiveUniformNoiseAttack, LinfAdditiveUniformNoiseAttack)
+from secml.adv.attacks import CFoolboxL2CarliniWagner
 from secml.adv.attacks.evasion import (
     CFoolboxPGDLinf, CFoolboxPGDL2, CFoolboxPGDL1,
     CAttackEvasionFoolbox)
@@ -14,7 +15,6 @@ from secml.ml.peval.metrics import CMetricAccuracy
 from adv.attack_base import AttackBase
 
 # attack cls, is min-distance, is secml-class, attack-norm, debug-possible
-from app.adv.classification.attacks.cw_attack_local import CFoolboxL2CarliniWagner
 
 SUPPORTED_ATTACKS = {
     'pgd-linf': (CFoolboxPGDLinf, False, True, np.inf, True),

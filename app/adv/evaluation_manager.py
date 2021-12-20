@@ -22,6 +22,8 @@ PERT_SIZES = {
     'l2': [("0.01", 0.01), ("0.02", 0.02), ("0.05", 0.05), ("0.1", 0.1), ("0.2", 0.2), ("0.5", 0.5)],
 }
 
+NUM_CLASSES_TO_SHOW = 10
+
 
 class EvaluationManager:
     def __init__(self, dataset_id: str,
@@ -168,19 +170,21 @@ class EvaluationManager:
         steps = self._attack_params.get('steps', 0)
 
         self.attack_losses = torch.empty(
-            size=(len(self._perturbation_values), self._num_samples, steps))
+            size=(self._num_samples, steps))
         self.attack_distances = torch.empty(
-            size=(len(self._perturbation_values), self._num_samples, steps))
+            size=(self._num_samples, steps))
         self.attack_scores = torch.empty(
-            size=(len(self._perturbation_values), self._num_samples, steps, len(self.attack.classes)))
+            size=(self._num_samples, steps, NUM_CLASSES_TO_SHOW * 2))
         self.adv_examples = torch.empty(
-            size=(len(self._perturbation_values), self._num_samples, *self.input_shape))
+            size=(self._num_samples, *self.input_shape))
 
         for eps_idx, eps in enumerate(self._perturbation_values):
             acc = []
             for batch_idx, (samples, labels) in enumerate(self._validation_loader):
                 min_batch_index = batch_idx * batch_size
                 max_batch_index = min((batch_idx + 1) * batch_size, self._num_samples)
+                to_replace = np.arange(min_batch_index, max_batch_index)
+
                 if self.attack.is_min_distance(self._attack_cls):
                     if self._batch_is_cached[batch_idx] is False:
                         is_adv, adv_points = self.attack.run(samples, labels, self._attack_cls, self._attack_params,
@@ -197,6 +201,24 @@ class EvaluationManager:
                                                  max_batch_index] = distances
                         if eps > 0:
                             self._batch_is_cached[batch_idx] = True
+
+                        if self.attack.debug_possible is True:
+                            if eps_idx > 0:
+                                x_seq = self.attack.attack.x_seq
+                                print(self.attack_losses.dtype, to_torch(self.attack.attack.objective_function(
+                                        x_seq)).dtype)
+                                self.attack_losses[to_replace, :] = \
+                                    to_torch(self.attack.attack.objective_function(
+                                        x_seq)).type(torch.FloatTensor)
+                                self.attack_distances[to_replace, :] = \
+                                    to_torch((x_seq[0, :] - x_seq).norm_2d(
+                                        axis=1,
+                                        order=self.attack.attack_norm(self._attack_cls)).ravel()).type(torch.FloatTensor)
+                                all_attack_scores = to_torch(self._model.decision_function(x_seq)).type(torch.FloatTensor)
+                                max_beginning, indices_max_beginning = all_attack_scores[0, :].topk(NUM_CLASSES_TO_SHOW)
+                                max_final, indices_max_final = all_attack_scores[-1, :].topk(NUM_CLASSES_TO_SHOW)
+                                take_indexes = torch.cat([indices_max_beginning, indices_max_final])
+                                self.attack_scores[to_replace, :, :] = all_attack_scores[:, take_indexes]
                     else:
                         pass
                 else:
@@ -220,22 +242,23 @@ class EvaluationManager:
                         distances_batch[is_adv_batch] = distances
                         self.cached_min_distance[min_batch_index:
                                                  max_batch_index] = distances_batch
+                        to_replace = to_replace[not_yet_adv]
 
                         if self.attack.debug_possible is True:
-                            # skip eps = 0
-                            if eps_idx >= 1:
+                            if eps_idx > 0:
                                 x_seq = self.attack.attack.x_seq
-                                self.attack_losses[eps_idx, min_batch_index:
-                                                            max_batch_index, :] = \
+                                self.attack_losses[to_replace, :] = \
                                     to_torch(self.attack.attack.objective_function(
                                         x_seq))
-                                self.attack_distances[eps_idx, min_batch_index:
-                                                               max_batch_index, :] = \
-                                    to_torch((x_seq[0, :] - x_seq).norm_2d(axis=1, order=
-                                    self.attack.attack_norm(self._attack_cls)).ravel())
-                                self.attack_scores[eps_idx, min_batch_index:
-                                                            max_batch_index, :, :] = \
-                                    to_torch(self._model.decision_function(x_seq))
+                                self.attack_distances[to_replace, :] = \
+                                    to_torch((x_seq[0, :] - x_seq).norm_2d(
+                                        axis=1,
+                                        order=self.attack.attack_norm(self._attack_cls)).ravel())
+                                all_attack_scores = to_torch(self._model.decision_function(x_seq))
+                                max_beginning, indices_max_beginning = all_attack_scores[0, :].topk(NUM_CLASSES_TO_SHOW)
+                                max_final, indices_max_final = all_attack_scores[-1, :].topk(NUM_CLASSES_TO_SHOW)
+                                take_indexes = torch.cat([indices_max_beginning, indices_max_final])
+                                self.attack_scores[to_replace, :, :] = all_attack_scores[:, take_indexes]
 
                 perf = torch.logical_or(torch.logical_not(self.cached_is_adv),
                                         torch.logical_and(self.cached_is_adv, self.cached_min_distance > eps)) \
@@ -256,12 +279,6 @@ class EvaluationManager:
 
         response = self.prepare_response(results)
         return response
-
-    def generate_advx(self, samples, labels, eps):
-        # TODO fix this function, apply new APIs
-        self.prepare_attack()
-        adv_points = self.attack.run(samples, labels, eps)
-        return adv_points
 
     def prepare_response(self, results: dict):
         """
@@ -289,6 +306,7 @@ class EvaluationManager:
         for k in ['attack_distances', 'attack_losses', 'attack_scores']:
             if k in results:
                 eval_results.update({k: results[k].tolist()})
+        eval_results['debug_possible'] = self.attack.debug_possible
         return eval_results
 
 
