@@ -16,7 +16,13 @@ function update(jobId) {
                 case "finished":
                     $('#spinner').hide();
                     $('#waitText').text("");
+                    if (data['results']['debug_possible']) {
+                        $('#inspectButton').css("visibility", 'visible');
+                        getSamples();
+                        updateCurvesAndSample();
+                    }
                     makeGraph(data['results']);
+
                     break;
                 case "started":
                     $('#waitText').text("Job started...");
@@ -51,6 +57,7 @@ $(document).ready(function () {
 
 const zip = (a, b) => a.map((k, i) => [k, b[i]]);
 
+// makes security evaluation plot
 function makeGraph(results) {
     var ctx = document.getElementById("secEvalOutput").getContext('2d');
     var data = {
@@ -116,7 +123,8 @@ function makeGraph(results) {
             },
         }
     );
-    $('#accText').css("visibility",'visible');
-    $('#pertSizeText').css("visibility",'visible');
-    $('#downloadButton').css("visibility",'visible');
+    $('#accText').css("visibility", 'visible');
+    $('#pertSizeText').css("visibility", 'visible');
+    $('#downloadButton').css("visibility", 'visible');
+
 }

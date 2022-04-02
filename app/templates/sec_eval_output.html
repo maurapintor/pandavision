@@ -7,6 +7,7 @@
             <div class="col">
                 <h1>Security Evaluation Results</h1>
                 <div class="card">
+
                     <div class="row">
                         <div class="col-1" style="justify-content: center; align-items: center;display: flex;">
                             <h4 id="accText" style="writing-mode: vertical-rl; text-orientation: mixed;
@@ -37,9 +38,68 @@
                                 Download as CSV</a>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-1">
+                        </div>
+                        <div class="col" style="text-align: center;">
+                            <a id="inspectButton" style="visibility: hidden; margin:20px;"
+                               class="btn btn-dark" onclick="showInspect();">
+                                Inspect Results</a>
+                        </div>
+                    </div>
+                    <div id="inspectResultsDiv" style="visibility: hidden;">
+                        <div class="row">
+                            <div class="col-1">
+                            </div>
+                            <div class="col" style="text-align: center; margin-bottom: 40px">
+                                <label for="sampleSelect">Sample ID:</label>
+                                <select id="sampleSelect" class="btn btn-secondary dropdown-toggle">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                            </div>
+                            <div class="col" style="text-align: center;">
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons" id="plotContentSelect">
+                                    <label class="btn btn-secondary active">
+                                        <input type="radio" name="plotOptions" id="losses_checked" value="attack_losses"
+                                               checked> Loss
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="plotOptions" id="distance_checked"
+                                               value="attack_distances"> Distance
+                                    </label>
+                                </div>
+                                <canvas id="inspectResults"></canvas>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-1">
+                            </div>
+                            <div class="col" style="text-align: center; padding-bottom: 40px">
+                                <div class="row" style="text-align: center;">
+                                    <div class="col" style="text-align: center;">
+                                        <p>Original image</p>
+                                        <img id="OriginalSampleImage" src="" alt="no image">
+                                    </div>
+                                    <div class="col" style="text-align: center;">
+                                        <p>Adversarial Image</p>
+                                        <img id="advExampleImage" src="" alt="no image">
+                                    </div>
+                                    <div class="col" style="text-align: center;">
+                                        <p>Amplified Perturbation</p>
+                                        <img id="DiffImage" src="" alt="no image">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <script src="{{ url_for("static", filename="poll.js") }}" id="polling" jobid={{ jobID }}></script>
+    <script src="{{ url_for("static", filename="make_inspect.js") }}" jobid={{ jobID }} id="inspect"></script>
+
 {% endblock %}
