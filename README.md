@@ -79,8 +79,8 @@ docker-compose up --scale worker=2
 ### Quick start
 
 For a demo example, you can download a 
-[sample containing few images of the imagenet dataset](https://github.com/maurapintor/pandavision/releases/download/v0.3/data.h5)
-and a [resnet50-pretrained model from the onnx zoo](https://github.com/maurapintor/pandavision/releases/download/v0.3/model.onnx).
+[sample containing few images of the imagenet dataset](https://github.com/maurapintor/pandavision/releases/download/v0.5/data.h5)
+and a [resnet50-pretrained model from the onnx zoo](https://github.com/maurapintor/pandavision/releases/download/v0.5/model.onnx).
 
 Download the files and place them in a known directory.
 
