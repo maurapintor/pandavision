@@ -13,6 +13,7 @@ const getChartIfExists = (canvasId, ctx, data) => {
                         layout: {
                             padding: 50
                         },
+                        scales: {x: { title: { display: true, text: 'iterations' }}},
                         interaction: {
                             mode: 'index',
                             intersect: false,
@@ -43,7 +44,7 @@ function makeInspect(results, plotContent) {
     datasets = [];
     datasets.push(
         {
-            label: '',
+            label: 'iterations',
             fill: false,
             data: zip(Array.apply(null, {length: results[plotContent].length}).map(eval.call, Number), results[plotContent]),
             borderColor: 'rgb( 35, 128, 126)',
