@@ -118,7 +118,11 @@ evaluation curve on the interface.
 
 You can follow this video tutorial (click for YouTube video) for configuring the security evaluation:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/BmKwEqhqPes" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<a href="https://youtu.be/BmKwEqhqPes" title="Music Caster Video Demo">
+  <p align="center">
+    <img width="75%" src="https://img.youtube.com/vi/BmKwEqhqPes/maxresdefault.jpg" alt="PandaVision Video Demo Thumbnail"/>
+  </p>
+</a>
 
 
 You can also download the data in `csv` format, by pressing the button that appears below the plot.
