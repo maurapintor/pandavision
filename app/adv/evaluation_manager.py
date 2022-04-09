@@ -207,8 +207,6 @@ class EvaluationManager:
                         if self.attack.debug_possible is True:
                             if eps_idx > 0:
                                 x_seq = self.attack.attack.x_seq
-                                print(self.attack_losses.dtype, to_torch(self.attack.attack.objective_function(
-                                        x_seq)).dtype)
                                 self.attack_losses[to_replace, :] = \
                                     to_torch(self.attack.attack.objective_function(
                                         x_seq)).type(torch.FloatTensor)
@@ -221,8 +219,8 @@ class EvaluationManager:
                                 max_final, indices_max_final = all_attack_scores[-1, :].topk(NUM_CLASSES_TO_SHOW)
                                 take_indexes = torch.cat([indices_max_beginning, indices_max_final])
                                 self.attack_scores[to_replace, :, :] = all_attack_scores[:, take_indexes]
-                                self.orig_samples[to_replace, ...] = samples
-                                self.adv_examples[to_replace, ...] = adv_points
+                                self.orig_samples[to_replace, ...] = samples.type(self.orig_samples.dtype)
+                                self.adv_examples[to_replace, ...] = adv_points.type(self.adv_examples.dtype)
                     else:
                         pass
                 else:
